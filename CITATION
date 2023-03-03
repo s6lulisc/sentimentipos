@@ -1,0 +1,6 @@
+@Unpublished{sentimentipos2023,
+    Title  = {This project investigates the relationship between financial news sentiment scores and IPO first day returns},
+    Author = {Luke Liscio},
+    Year   = {2023},
+    Url    = {https://github.com/s6lulisc/sentimentipos}
+}
