@@ -1,24 +1,72 @@
-"""Tasks for managing the data."""
-
 import pandas as pd
 import pytask
 
 from sentimentipos.config import BLD, SRC
-from sentimentipos.data_management import clean_data
-from sentimentipos.utilities import read_yaml
+from sentimentipos.data_management import (
+    filter_and_store_df_by_ipo_date,
+    generate_dataframes,
+    get_ipo_df,
+    get_ipo_info,
+    ipo_tickers,
+    split_text,
+    transpose_all_dataframes,
+    unzipper,
+)
 
 
+# Task #1. This task is unzipping the json files and storing them in the SRC / "data" / "unzipped" folder
 @pytask.mark.depends_on(
     {
-        "scripts": ["clean_data.py"],
-        "data_info": SRC / "data_management" / "data_info.yaml",
-        "data": SRC / "data" / "data.csv",
+        "scripts": SRC / "data_management" / "clean_data.py",
+        "json_zip": SRC / "data" / "archive.zip",
     },
 )
-@pytask.mark.produces(BLD / "python" / "data" / "data_clean.csv")
-def task_clean_data_python(depends_on, produces):
-    """Clean the data (Python version)."""
-    data_info = read_yaml(depends_on["data_info"])
-    data = pd.read_csv(depends_on["data"])
-    data = clean_data(data, data_info)
-    data.to_csv(produces, index=False)
+@pytask.mark.produces(SRC / "data")
+@pytask.mark.try_first
+def task_unzipper(depends_on, produces):
+    unzipper(depends_on["json_zip"], produces / "unzipped")
+
+
+# Task #2. This task does the remainng data managemennt and stores matching json files of the companies of interest as well as tokenized csv files of the text column from the articles.
+@pytask.mark.depends_on(
+    {
+        "scripts": SRC / "data_management" / "clean_data.py",
+        "json_zip": SRC / "data" / "archive.zip",
+        "ipo_df": SRC / "data" / "ipo_df.xlsx",
+        "unzipped_json_files": SRC / "data",
+    },
+)
+@pytask.mark.produces(
+    {
+        "output_folder_path": BLD / "python" / "data",
+    },
+)
+@pytask.mark.try_last
+def task_df_dict(depends_on, produces):
+    get_ipo_df(depends_on["ipo_df"])
+    ipo_list = ipo_tickers()
+    ipo_info = get_ipo_info(ipo_list)
+    df_info = pd.DataFrame.from_dict(ipo_info, orient="index")
+    df_info.index.name = "ticker"
+    df_info["ipo_date"] = pd.to_datetime(
+        df_info["ipo_date"],
+        errors="coerce",
+        utc=True,
+    ).dt.date
+    desired_words = list(df_info["company_name"])
+    df_dict = {}
+    df_dict = generate_dataframes(
+        depends_on["unzipped_json_files"] / "unzipped",
+        desired_words,
+        produces["output_folder_path"],
+    )
+    transpose_all_dataframes(df_dict)
+    companies_and_tickers = [
+        (ipo_info.get(ticker).get("company_name"), ticker) for ticker in ipo_info
+    ]
+    dfs_filtered = {}
+    # for df, ticker in df_and_tickers:
+    dfs_filtered = filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict)
+    dfs_filtered = [(dfs_filtered[f"df_{ticker}"], ticker) for ticker in ipo_list]
+    for df, ticker in dfs_filtered:
+        split_text(df, ticker)
