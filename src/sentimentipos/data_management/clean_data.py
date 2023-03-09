@@ -79,6 +79,11 @@ def get_matching_files(folder_path, word):
 
 
 def generate_dataframes(folder_path, desired_words, output_folder_path):
+    # Create the output folder if it does not exist
+    matching_json_folder_path = os.path.join(output_folder_path, "matching_json_files")
+    if not os.path.exists(matching_json_folder_path):
+        os.makedirs(matching_json_folder_path)
+
     df_dict = {}
     for word in desired_words:
         matching_files = get_matching_files(folder_path, word)
@@ -88,7 +93,7 @@ def generate_dataframes(folder_path, desired_words, output_folder_path):
                 data = json.load(f)
                 output_dict[file_path] = data
         output_file_name = f"matching_files_{word}.json"
-        output_file_path = os.path.join(output_folder_path, output_file_name)
+        output_file_path = os.path.join(matching_json_folder_path, output_file_name)
         with open(output_file_path, "w") as f:
             json.dump(output_dict, f)
         df_name = f'df_{word.replace(" ", "")}'
