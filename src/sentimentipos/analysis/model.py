@@ -1,4 +1,5 @@
 import pandas as pd
+import statsmodels.api as sm
 
 
 def get_sentiment_scores(ipo_list, lm, path):
@@ -20,3 +21,15 @@ def get_sentiment_scores(ipo_list, lm, path):
         df_scores.loc[ticker, "Subjectivity"] = score["Subjectivity"]
 
     return df_scores
+
+
+def run_linear_regression(df_info, sentiment_scores):
+    # Concatenate X and y into a single DataFrame
+    # Print the model summary
+    df_info.reset_index(drop=True, inplace=True)
+    sentiment_scores.reset_index(drop=True, inplace=True)
+    y = df_info["returns"]
+    X = sentiment_scores["Polarity"]
+    model = sm.OLS(y, sm.add_constant(X)).fit()
+    summary_table = model.summary()
+    return summary_table

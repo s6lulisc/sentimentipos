@@ -1,5 +1,7 @@
 """Functions for formatting results."""
 
-from sentimentipos.final.plot import plot_regression_by_age
+from sentimentipos.analysis.model import get_sentiment_scores, run_linear_regression
+from sentimentipos.data_management.clean_data import ipo_tickers
+from sentimentipos.final.plot import plot_regression
 
-__all__ = [plot_regression_by_age]
+__all__ = [plot_regression, run_linear_regression, get_sentiment_scores, ipo_tickers]
