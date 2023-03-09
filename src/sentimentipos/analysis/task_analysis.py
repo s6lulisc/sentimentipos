@@ -3,9 +3,8 @@
 import pandas as pd
 import pysentiment2 as ps
 import pytask
-import statsmodels.api as sm
 
-from sentimentipos.analysis import get_sentiment_scores
+from sentimentipos.analysis import get_sentiment_scores, run_linear_regression
 from sentimentipos.config import BLD, SRC
 from sentimentipos.data_management import ipo_tickers
 
@@ -18,7 +17,7 @@ from sentimentipos.data_management import ipo_tickers
     },
 )
 @pytask.mark.produces(
-    {"models": BLD / "python" / "models", "tables": BLD / "python" / "tables"},
+    {"models": BLD / "python" / "models", "table": BLD / "python" / "tables"},
 )
 def task_get_sentiment_scores(depends_on, produces):
     """"""
@@ -29,11 +28,12 @@ def task_get_sentiment_scores(depends_on, produces):
     #######################
     # Specify the dependent variable and independent variable
     df_info = pd.read_csv(depends_on["data"] / "df_info.csv")
+    # Reset index and select columns for X and y
     df_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
-    y = df_info["returns"]
-    X = sentiment_scores["Polarity"]
+    df_info["returns"]
+    sentiment_scores["Polarity"]
     # Fit a linear regression model
-    model = sm.OLS(y, X).fit()
-    # Print the summary of the model
-    model.summary()
+    summary_table = run_linear_regression(df_info, sentiment_scores)
+    with open(produces["table"] / "summary_table.tex", "w") as f:
+        f.write(summary_table.as_latex())
