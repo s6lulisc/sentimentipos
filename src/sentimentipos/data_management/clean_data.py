@@ -94,7 +94,6 @@ def generate_dataframes(folder_path, desired_words, output_folder_path):
         df_name = f'df_{word.replace(" ", "")}'
         df = pd.read_json(output_file_path)
         df_dict[df_name] = df
-        # with open(working_path / 'bld/python/data/unzipped/df_dict.pkl', 'wb') as f:
     return df_dict
 
 
