@@ -1,54 +1,22 @@
-"""Functions for fitting the regression model."""
-
-import statsmodels.formula.api as smf
-from statsmodels.iolib.smpickle import load_pickle
+import pandas as pd
 
 
-def fit_logit_model(data, data_info, model_type):
-    """Fit a logit model to data.
+def get_sentiment_scores(ipo_list, lm, path):
+    # Initialize an empty DataFrame with the tickers as index
+    df_scores = pd.DataFrame(index=ipo_list)
 
-    Args:
-        data (pandas.DataFrame): The data set.
-        data_info (dict): Information on data set stored in data_info.yaml. The
-            following keys can be accessed:
-            - 'outcome': Name of dependent variable column in data
-            - 'outcome_numerical': Name to be given to the numerical version of outcome
-            - 'columns_to_drop': Names of columns that are dropped in data cleaning step
-            - 'categorical_columns': Names of columns that are converted to categorical
-            - 'column_rename_mapping': Old and new names of columns to be renamend,
-                stored in a dictionary with design: {'old_name': 'new_name'}
-            - 'url': URL to data set
-        model_type (str): What model to build for the linear relationship of the logit
-            model. Currently implemented:
-            - 'linear': Numerical covariates enter the regression linearly, and
-            categorical covariates are expanded to dummy variables.
+    # Loop through the tickers and get the scores
+    for ticker in ipo_list:
+        words_file = path / f"{ticker}.csv"
+        words_df = pd.read_csv(words_file, header=None)
+        words = list(words_df[0])
 
-    Returns:
-        statsmodels.base.model.Results: The fitted model.
+        score = lm.get_score(words)
 
-    """
-    outcome_name = data_info["outcome"]
-    outcome_name_numerical = data_info["outcome_numerical"]
-    feature_names = list(set(data.columns) - {outcome_name, outcome_name_numerical})
+        # Add the scores to the DataFrame
+        df_scores.loc[ticker, "Positive"] = score["Positive"]
+        df_scores.loc[ticker, "Negative"] = score["Negative"]
+        df_scores.loc[ticker, "Polarity"] = score["Polarity"]
+        df_scores.loc[ticker, "Subjectivity"] = score["Subjectivity"]
 
-    if model_type == "linear":
-        # smf.logit expects the binary outcome to be numerical
-        formula = f"{outcome_name_numerical} ~ " + " + ".join(feature_names)
-    else:
-        message = "Only 'linear' model_type is supported right now."
-        raise ValueError(message)
-
-    return smf.logit(formula, data=data).fit()
-
-
-def load_model(path):
-    """Load statsmodels model.
-
-    Args:
-        path (str or pathlib.Path): Path to model file.
-
-    Returns:
-        statsmodels.base.model.Results: The stored model.
-
-    """
-    return load_pickle(path)
+    return df_scores

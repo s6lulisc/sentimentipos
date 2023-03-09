@@ -53,6 +53,7 @@ def task_df_dict(depends_on, produces):
         errors="coerce",
         utc=True,
     ).dt.date
+    df_info.to_csv(produces["output_folder_path"] / "df_info.csv", index=False)
     desired_words = list(df_info["company_name"])
     df_dict = {}
     df_dict = generate_dataframes(
