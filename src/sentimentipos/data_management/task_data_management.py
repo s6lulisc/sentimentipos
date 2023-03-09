@@ -21,10 +21,10 @@ from sentimentipos.data_management import (
         "json_zip": SRC / "data" / "archive.zip",
     },
 )
-@pytask.mark.produces(SRC / "data")
+@pytask.mark.produces(BLD / "python" / "data" / "unzipped")
 @pytask.mark.try_first
 def task_unzipper(depends_on, produces):
-    unzipper(depends_on["json_zip"], produces / "unzipped")
+    unzipper(depends_on["json_zip"], produces)
 
 
 # Task #2. This task does the remainng data managemennt and stores matching json files of the companies of interest as well as tokenized csv files of the text column from the articles.
@@ -57,7 +57,7 @@ def task_df_dict(depends_on, produces):
     desired_words = list(df_info["company_name"])
     df_dict = {}
     df_dict = generate_dataframes(
-        depends_on["unzipped_json_files"] / "unzipped",
+        produces["output_folder_path"] / "unzipped",
         desired_words,
         produces["output_folder_path"],
     )
