@@ -164,7 +164,6 @@ def split_text(df, ticker):
     globals()[f"{ticker}_words"] = words
 
     words_df = pd.DataFrame(words, columns=["words"])
-
     # Save the DataFrame to a CSV file and return it
-    words_df.to_csv(f"bld/python/data/{ticker}.csv", index=False)
+    words_df.to_csv(f"bld/python/data/tokenized_texts/{ticker}.csv", index=False)
     return words_df

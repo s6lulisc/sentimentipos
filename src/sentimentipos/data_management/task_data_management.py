@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import pytask
 
@@ -69,5 +71,9 @@ def task_df_dict(depends_on, produces):
     # for df, ticker in df_and_tickers:
     dfs_filtered = filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict)
     dfs_filtered = [(dfs_filtered[f"df_{ticker}"], ticker) for ticker in ipo_list]
+    try:
+        os.mkdir(produces["output_folder_path"] / "tokenized_texts")
+    except FileExistsError:
+        pass
     for df, ticker in dfs_filtered:
         split_text(df, ticker)
