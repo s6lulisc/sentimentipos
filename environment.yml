@@ -6,8 +6,12 @@ channels:
 
 dependencies:
   - conda-lock
+  - json
   - ipykernel
   - jupyterlab
+  - matplotlib
+  - os
+  - random
   - pandas
   - pdbpp
   - pip >=21.1
@@ -21,10 +25,12 @@ dependencies:
   - pytest-xdist
   - python-graphviz
   - python=3.11
+  - pysentiment2
   - pyyaml
   - setuptools_scm
   - statsmodels
   - toml
+  - zipfile
   - pip:
       - -e .
       - kaleido
