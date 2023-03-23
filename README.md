@@ -1,5 +1,8 @@
-# Sentiment Analysis Scores and IPO First Day Returns
+# Final Project: Sentiment Analysis Scores and IPO First Day Returns
 
+### Authors
+
+- Luke Liscio and Leonardo Rota Sperti
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/s6lulisc/sentimentipos/main.svg)](https://results.pre-commit.ci/latest/github/s6lulisc/sentimentipos/main)
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
