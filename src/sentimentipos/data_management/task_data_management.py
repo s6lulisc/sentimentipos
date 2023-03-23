@@ -23,10 +23,22 @@ from sentimentipos.data_management import (
         "json_zip": SRC / "data" / "archive.zip",
     },
 )
-@pytask.mark.produces(BLD / "python" / "data" / "unzipped")
+@pytask.mark.produces(
+    {
+        "unzipped": BLD / "python" / "data" / "unzipped",
+        "bld_python_path": BLD / "python",
+    },
+)
 @pytask.mark.try_first
 def task_unzipper(depends_on, produces):
-    unzipper(depends_on["json_zip"], produces)
+    unzipper(depends_on["json_zip"], produces["unzipped"])
+    folder_names = ["figures", "models", "tables"]
+    for folder_name in folder_names:
+        folder_path = os.path.join(produces["bld_python_path"], folder_name)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        else:
+            pass
 
 
 # Task #2. This task does the remainng data managemennt and stores matching json files of the companies of interest as well as tokenized csv files of the text column from the articles.
