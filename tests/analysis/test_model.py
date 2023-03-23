@@ -1,36 +1,52 @@
-"""Tests for the regression model."""
-
 import numpy as np
 import pandas as pd
 import pytest
-from sentimentipos.analysis.model import fit_logit_model
-
-DESIRED_PRECISION = 10e-2
-
-
-@pytest.fixture()
-def data():
-    np.random.seed(0)
-    x = np.random.normal(size=100_000)
-    coef = 2.0
-    prob = 1 / (1 + np.exp(-coef * x))
-    return pd.DataFrame(
-        {"outcome_numerical": np.random.binomial(1, prob), "covariate": x},
-    )
+from sentimentipos.analysis.model import get_sentiment_scores, run_linear_regression
+from statsmodels import api as sm
 
 
-@pytest.fixture()
-def data_info():
-    return {"outcome": "outcome", "outcome_numerical": "outcome_numerical"}
+class TestModel:
+    @pytest.fixture(scope="class")
+    def ipo_list(self):
+        return ["AAPL", "MSFT"]
 
+    @pytest.fixture(scope="class")
+    def fake_lm(self):
+        class FakeLanguageModel:
+            def get_score(self, words):
+                return {
+                    "Positive": 0.2,
+                    "Negative": 0.1,
+                    "Polarity": 0.1,
+                    "Subjectivity": 0.3,
+                }
 
-def test_fit_logit_model_recover_coefficients(data, data_info):
-    model = fit_logit_model(data, data_info, model_type="linear")
-    params = model.params
-    assert np.abs(params["Intercept"]) < DESIRED_PRECISION
-    assert np.abs(params["covariate"] - 2.0) < DESIRED_PRECISION
+        return FakeLanguageModel()
 
+    @pytest.fixture(scope="class")
+    def fake_path(self, tmp_path_factory):
+        path = tmp_path_factory.mktemp("data")
+        for ticker in ["AAPL", "MSFT"]:
+            words_file = path / f"{ticker}.csv"
+            words = ["word1", "word2", "word3"]
+            pd.DataFrame(words).to_csv(words_file, header=None, index=None)
+        return path
 
-def test_fit_logit_model_error_model_type(data, data_info):
-    with pytest.raises(ValueError):  # noqa: PT011
-        assert fit_logit_model(data, data_info, model_type="quadratic")
+    def test_get_sentiment_scores(self, ipo_list, fake_lm, fake_path):
+        expected = pd.DataFrame(
+            {
+                "Positive": [0.2, 0.2],
+                "Negative": [0.1, 0.1],
+                "Polarity": [0.1, 0.1],
+                "Subjectivity": [0.3, 0.3],
+            },
+            index=ipo_list,
+        )
+        result = get_sentiment_scores(ipo_list, fake_lm, fake_path)
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_run_linear_regression(self):
+        df_info = pd.DataFrame({"returns": np.random.rand(8)})
+        sentiment_scores = pd.DataFrame({"Polarity": np.random.rand(8)})
+        summary_table = run_linear_regression(df_info, sentiment_scores)
+        assert isinstance(summary_table, sm.iolib.summary.Summary)
