@@ -2,7 +2,6 @@
 
 import json
 import os
-import random
 import zipfile
 
 import pandas as pd
@@ -56,21 +55,19 @@ def get_ipo_info(ipo_list):
 
 
 def contains_word(file_path, word):
-    with open(file_path, encoding="latin-1") as f:
-        data = json.load(f)
-        # Check if the JSON data contains the word
-        if "title" in data and word in data["title"]:
-            return True
+    try:
+        with open(file_path, encoding="latin-1") as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        return False
 
-    return False
+    return word in data.get("title", "") or word in data.get("content", "")
 
 
 def get_matching_files(folder_path, word):
     matching_files = []
     for dirpath, _dirnames, filenames in os.walk(folder_path):
-        random.shuffle(filenames)
-        random_sample = filenames[: int(len(filenames) * 0.1)]
-        for filename in random_sample:
+        for filename in filenames:
             file_path = os.path.join(dirpath, filename)
             if contains_word(file_path, word):
                 matching_files.append(file_path)
