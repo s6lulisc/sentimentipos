@@ -56,14 +56,13 @@ def get_ipo_info(ipo_list):
 
 
 def contains_word(file_path, word):
-    try:
-        with open(file_path, encoding="latin-1") as f:
-            data = json.load(f)
-            # Check if the JSON data contains the word
-            if "title" in data and word in data["title"]:
-                return True
-    except json.JSONDecodeError:
-        return False
+    with open(file_path, encoding="latin-1") as f:
+        data = json.load(f)
+        # Check if the JSON data contains the word
+        if "title" in data and word in data["title"]:
+            return True
+
+    return False
 
 
 def get_matching_files(folder_path, word):
