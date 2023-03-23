@@ -1,26 +1,78 @@
-# Final Project: Sentiment Analysis Scores and IPO First Day Returns
+# EPP Final Project: Sentiment Analysis Scores and IPO First Day Returns
 
-### Authors
+## Authors
 
-- Luke Liscio and Leonardo Rota Sperti
+- Luke Liscio (University of Bonn, s6lulisc@uni-bonn.de)
+- Leonardo Rota Sperti (University of Bonn, s6lerota@uni-bonn.de)
 
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/s6lulisc/sentimentipos/main.svg)](https://results.pre-commit.ci/latest/github/s6lulisc/sentimentipos/main)
-[![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+## About this project
 
-## Usage
+The purpose of this repository is to conduct an empirical study of sentiment analysis on
+US financial news articles related to IPOs in the year 2018. We then look at the
+relationship between the polarity score of each of the IPOs under investigation and
+their first day returns respectively. In this analysis, first day returns is measured as
+the percentage change from opening price to closing price on the first day of trading.
+This repo contains python scripts that handle the data management, analsis, and
+production of a paper with the findings from this analysis.
 
-To get started, create and activate the environment with
+The main objective of this project is to demonstrate and apply the skills learned in
+"Effective Programming Practices for Economists".
 
-```console
-$ conda/mamba env create
-$ conda activate sentimentipos
-```
+## Requirements to run this project
 
-To build the project, type
+In order to run this project on your local computer you need to have installed Python,
+an Anaconda distribution, and a LaTex distribution in order to compile the documents.
 
-```console
-$ pytask
-```
+The project was created on MacOS Ventura version 13.1. Here are the following programs
+that were used during this project:
+
+- Anaconda 23.1.0
+- Python 3.11
+- MacTeX-2023
+
+1. Once the above programs are installed, first clone this repository to your local
+   machine.
+
+1. In order to run this project you will need to download this
+   [zipped data set file from Kaggle](https://www.kaggle.com/datasets/jeet2016/us-financial-news-articles).
+   When saving the file to your local machine, make sure to save it to the correct path.
+   The zipped file needs to be saved in src/sentimentipos/data.
+
+1. All of the necessary python dependencies are located in environment.yml . To install
+   the virtual environment in a terminal, navigate to the root folder of the repository
+   and type
+
+   ```console
+   $ conda env create -f environment.yml
+   ```
+
+   And then activate it with
+
+   ```console
+   $ conda activate sentimentipos
+   ```
+
+1. To build the project, type
+
+   ```console
+   $ pytask
+   ```
+
+1. To run tests, type
+
+   ```console
+   $ pytest
+   ```
+
+## How to understand this repository
+
+This repository was built using the
+[Templates for Reproducible Research Projects in Economics](https://econ-project-templates.readthedocs.io/en/latest/index.html).
+
+- The src folder contains all the python scripts related to the execution of the
+  project, such as the data management, analysis, plotting, and the tasks.
+- The bld folder contains all the outputs, such as the summary statistics from the
+  regression, plots, sentiment scores, and the tokenized texts and unzipped json files.
 
 ## Credits
 
