@@ -15,6 +15,8 @@ from sentimentipos.data_management.clean_data import (
     get_matching_files,
     get_returns,
     unzipper,
+    transpose_all_dataframes,
+    filter_df_by_ipo_date
 )
 
 
@@ -189,3 +191,57 @@ def test_generate_dataframes(tmpdir):
         output_file_name = f"matching_files_{word}.json"
         output_file_path = os.path.join(matching_json_folder_path, output_file_name)
         assert os.path.exists(output_file_path)
+
+######################################
+
+@pytest.mark.parametrize("df_dict", [
+    {'df1': pd.DataFrame({'A': [1, 2], 'B': [3, 4]}),
+     'df2': pd.DataFrame({'C': [5, 6], 'D': [7, 8]})},
+    {'df1': pd.DataFrame({'A': [1], 'B': [2]}),
+     'df2': pd.DataFrame({'C': [3], 'D': [4]})},
+])
+def test_transpose_all_dataframes(df_dict):
+    expected_dict = {}
+    for name, df in df_dict.items():
+        expected_dict[name] = df.T
+
+    actual_dict = transpose_all_dataframes(df_dict)
+
+    for name, df in actual_dict.items():
+        assert df.equals(expected_dict[name])
+
+
+
+
+#@pytest.fixture
+#def example_data():
+#    # Define example data
+#    df_dict = {
+#        "df_company": pd.DataFrame({
+#            "published": ["2021-01-01", "2021-02-01", "2022-01-01"],
+#            "headline": ["Article 1", "Article 2", "Article 3"]
+#        })
+#    }
+#    company = "company"
+#    ticker = "AAPL"
+#    
+#    return df_dict, company, ticker
+#
+#def test_filter_df_by_ipo_date(example_data):
+#    # Unpack example data
+#    df_dict, company, ticker = example_data
+#    
+#    # Call function to be tested
+#    result_df = filter_df_by_ipo_date(df_dict, company, ticker)
+#    
+#    # Define expected output
+#    expected_df = pd.DataFrame({
+#        "published": ["2021-01-01", "2021-02-01"],
+#        "headline": ["Article 1", "Article 2"]
+#    })
+#    
+#    # Compare result to expected output
+#    pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+
