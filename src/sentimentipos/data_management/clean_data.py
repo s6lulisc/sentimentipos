@@ -3,6 +3,7 @@
 import json
 import os
 import zipfile
+import string
 
 import pandas as pd
 
@@ -153,8 +154,11 @@ def split_text(df, ticker):
 
     for _index, row in text_col.iteritems():
         all_text.append(row)  # add the text value from the current row to the list
+    
+    punctuation = string.punctuation.replace("-", "") # keep hyphen
+    only_text = [text.translate(str.maketrans("", "", punctuation)) for text in all_text]
 
-    ticker_text_str = ",".join(all_text)
+    ticker_text_str = ",".join(only_text)
     globals()[f"{ticker}_text"] = ticker_text_str
     words = ticker_text_str.split()
     globals()[f"{ticker}_words"] = words
