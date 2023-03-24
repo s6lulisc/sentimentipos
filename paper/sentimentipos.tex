@@ -82,30 +82,29 @@
 \section{Introduction} % (fold)
 \label{sec:introduction}
 
+The first data set for this project is taken from
+\url{https://www.kaggle.com/datasets/jeet2016/us-financial-news-articles}.
+The second data set is from
+\url{https://www.iposcoop.com/scoop-track-record-from-2000-to-present}.
+The first data set contains over 300,000 US financial news articles.
+The second data set contains data on IPOs in the United States from 2000 until 2020.
+The purpose of this repository is to conduct an empirical study of sentiment analysis on
+US financial news articles related to IPOs in the year 2018. We then look at the
+relationship between the polarity score of each of the IPOs under investigation and
+their first day returns respectively. In this analysis, first day returns is measured as
+the percentage change from opening price to closing price on the first day of trading.
+This repo contains python scripts that handle the data management, analsis, and
+production of a paper with the findings from this analysis.
+
 If you are using this template, please cite this item from the references:
 \citet{GaudeckerEconProjectTemplates}.
-
-The data set for the example project is taken from
-\url{https://www.kaggle.com/datasets/jeet2016/us-financial-news-articles}.
-It contains data on smoking habits in the UK, with 1691 observations and 12 variables.
-We consider only 4 of the 12 features for the prediction of the variable
-\texttt{smoking}: \texttt{marital\_status}, \texttt{highest\_qualification},
-\texttt{gender} and \texttt{age}. We model the dependence using a Logistic model. All
-numerical features are included linearly, while categorical features are expanded into
-dummy variables. Figures below illustrate the model predictions over the lifetime. You
-will find one figure and one estimation summary table for each installed programming
-language.
-
-
 
 \begin{figure}[H]
 
     \centering
     \includegraphics[width=0.85\textwidth]{../python/figures/regression_plot}
 
-    \caption{\emph{Python:} Model predictions of the smoking probability over the
-        lifetime. Each colored line represents a case where marital status is fixed to one
-        of the values present in the data set.}
+    \caption{\emph{Python:} Plot of sentiment scores and first day returns.}
     \label{fig:python-predictions}
 
 \end{figure}
@@ -114,7 +113,7 @@ language.
 \begin{table}[!h]
     \input{../python/tables/summary_table.tex}
     \caption{\label{tab:python-summary}\emph{Python:} Estimation results of the
-        linear Logistic regression.}
+        linear regression.}
 \end{table}
 
 
