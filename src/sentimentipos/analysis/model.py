@@ -3,10 +3,19 @@ import statsmodels.api as sm
 
 
 def get_sentiment_scores(ipo_list, lm, path):
-    # Initialize an empty DataFrame with the tickers as index
+    """Calculate sentiment scores for each ticker in the IPO list.
+
+    Args:
+        ipo_list (list): A list of ticker symbols.
+        lm (SentimentIntensityAnalyzer): Instance of a sentiment analyzer.
+        path (Path): Directory path containing the words files for each ticker.
+
+    Returns:
+        df_scores (pd.DataFrame): DataFrame containing sentiment scores for each ticker.
+
+    """
     df_scores = pd.DataFrame(index=ipo_list)
 
-    # Loop through the tickers and get the scores
     for ticker in ipo_list:
         words_file = path / f"{ticker}.csv"
         words_df = pd.read_csv(words_file, header=None)
@@ -14,7 +23,6 @@ def get_sentiment_scores(ipo_list, lm, path):
 
         score = lm.get_score(words)
 
-        # Add the scores to the DataFrame
         df_scores.loc[ticker, "Positive"] = score["Positive"]
         df_scores.loc[ticker, "Negative"] = score["Negative"]
         df_scores.loc[ticker, "Polarity"] = score["Polarity"]
@@ -24,8 +32,16 @@ def get_sentiment_scores(ipo_list, lm, path):
 
 
 def run_linear_regression(df_info, sentiment_scores):
-    # Concatenate X and y into a single DataFrame
-    # Print the model summary
+    """Run a linear regression model using IPO returns and sentiment polarity scores.
+
+    Args:
+        df_info (pd.DataFrame): DataFrame containing IPO returns.
+        sentiment_scores (pd.DataFrame): DataFrame containing sentiment polarity scores.
+
+    Returns:
+        summary_table (str): Summary table of the linear regression model.
+
+    """
     df_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
     y = df_info["returns"]
