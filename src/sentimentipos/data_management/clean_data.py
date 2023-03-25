@@ -47,7 +47,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["DBX", "SPOT", "EQH"]
+    ipo_tickers = ["DBX", "SPOT", "EQH", "AVLR"]
     return ipo_tickers
 
 
