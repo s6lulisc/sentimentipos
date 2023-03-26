@@ -16,6 +16,7 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{subcaption}
 \usepackage{minibox}
+\usepackage{float}
 % \usepackage{pdf14} % Enable for Manuscriptcentral -- can't handle pdf 1.5
 % \usepackage{endfloat} % Enable to move tables / figures to the end. Useful for some
 % submissions.
@@ -94,7 +95,6 @@ The second data set is from
 \url{https://www.iposcoop.com/scoop-track-record-from-2000-to-present}.
 The first data set contains over 300,000 US financial news articles.
 The second data set contains data on IPOs in the United States from 2000 until 2020.
-
 If you are using this template, please cite this item from the references:
 \citet{GaudeckerEconProjectTemplates}.
 
@@ -111,8 +111,7 @@ If you are using this template, please cite this item from the references:
 
 \end{figure}
 
-
-\begin{table}[!h]
+\begin{table}[H]
     \input{../python/tables/summary_table.tex}
     \caption{\label{tab:python-summary}\emph{Python:} Estimation results of the
         linear regression.}
@@ -123,7 +122,7 @@ If you are using this template, please cite this item from the references:
 
 % section introduction (end)
 
-
+% \clearpage
 
 \setstretch{1}
 \printbibliography
