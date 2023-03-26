@@ -69,10 +69,48 @@ that were used during this project:
 This repository was built using the
 [Templates for Reproducible Research Projects in Economics](https://econ-project-templates.readthedocs.io/en/latest/index.html).
 
-- The src folder contains all the python scripts related to the execution of the
-  project, such as the data management, analysis, plotting, and the tasks.
-- The bld folder contains all the outputs, such as the summary statistics from the
-  regression, plots, sentiment scores, and the tokenized texts and unzipped json files.
+The `src` folder contains all the python scripts related to the execution of the
+project, such as the data management, analysis, plotting, and the tasks.
+
+- `data` contains the two data sets used in this project
+- `data_management` contains python scripts that run data processing/cleaning
+- `analysis` contains the python script model.py that runs the sentiment analysis and
+  regression
+- `final` contains python scripts related to plotting and creatinng the summary
+  statistics table
+
+The `bld` folder contains all the outputs of the project
+
+- `data` contains the folder of the unzipped json files, matching json files related to
+  the IPOs in the analysis, and the tokenized texts which contain the content from the
+  json files relevant to each IPO.
+- `figures` contains the plot from the regression
+- `models` contains the sentiment scroes of each IPO based on the textual analysis
+  conducted on related financial news articles to each IPO
+- `tables` contains the output of the regression and stores it as a table
+
+## Distribution of project responsibility
+
+The breakdown of responibilites were split into two catorgories.
+
+1. Joint effert
+
+- All code in `clean_data`, `task_data_management`, `model`, `task_analysis`, `plot`
+
+2. Individual
+
+**Author: Luke Liscio**
+
+- the tests for functions in `clean_data` up until `transpose_all_dataframes`
+- the tests in `test_model`
+- `task_final`
+- `paper/sentimentipos.tex` and `paper/task_paper`
+- `ReadMe`
+
+**Author: Leonardo Rota Sperti**
+
+- Tests in `clean_data` from `transpose_all_dataframes`
+- All docstrings
 
 ## Credits
 
