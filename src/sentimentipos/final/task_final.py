@@ -19,7 +19,7 @@ from sentimentipos.final import plot_regression
 @pytask.mark.produces(
     {"figures": BLD / "python" / "figures"},
 )
-@pytask.mark.try_last
+# @pytask.mark.try_last
 def task_regression_plot(depends_on, produces):
     lm = ps.LM()
     ipo_list = ipo_tickers()
@@ -39,6 +39,6 @@ def task_regression_plot(depends_on, produces):
     # Fit a linear regression model
     run_linear_regression(df_info, sentiment_scores)
     model = sm.OLS(y, sm.add_constant(X)).fit()
-    plot_regression(X, y, model)
+    plot_regression(X, y, model, df_info)
     # Save the plot
     plt.savefig(produces["figures"] / "regression_plot.png")
