@@ -16,8 +16,9 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{subcaption}
 \usepackage{minibox}
+\usepackage{float}
 % \usepackage{pdf14} % Enable for Manuscriptcentral -- can't handle pdf 1.5
-% \usepackage{endfloat} % Enable to move tables / figures to the end. Useful for some
+% \usepackage{endfloat} % Enable to move tables / figures to the end. Useful for some of the
 % submissions.
 
 \usepackage[
@@ -59,7 +60,7 @@
 
 \begin{document}
 
-\title{Sentiment Analysis Scores and IPO First Day Returns\thanks{Luke Liscio and Leonardo Rota Sperti, University of Bonn. Emails: \href{mailto:s6lulisc@uni-bonn.de}{\nolinkurl{s6lulisc [at] uni-bonn [dot] de}}, \href{mailto:s6lerota@uni-bonn.de}{\nolinkurl{s6lerota [at] uni-bonn [dot] de}}.}}
+\title{Sentiment Analysis Scores and IPO First Day Returns\thanks{Luke Liscio and Leonardo Rota Sperti, University of Bonn. Emails: \href{mailto:s6lulisc@uni-bonn.de}{\nolinkurl{s6lulisc [at] uni-bonn [dot] de}} \href{mailto:s6lerota@uni-bonn.de}{\nolinkurl{s6lerota [at] uni-bonn [dot] de}}}}
 
 \author{Luke Liscio and Leonardo Rota Sperti}
 
@@ -73,7 +74,13 @@
 
 
 \begin{abstract}
-    Some abstract here.
+    The purpose of this repository is to conduct an empirical study of sentiment analysis on
+US financial news articles related to IPOs in the year 2018. We then look at the
+relationship between the polarity score of each of the IPOs under investigation and
+their first day returns respectively. In this analysis, first day returns is measured as
+the percentage change from opening price to closing price on the first day of trading.
+This repo contains python scripts that handle the data management, analsis, and
+production of a paper with the findings from this analysis.
 \end{abstract}
 
 \clearpage
@@ -88,16 +95,11 @@ The second data set is from
 \url{https://www.iposcoop.com/scoop-track-record-from-2000-to-present}.
 The first data set contains over 300,000 US financial news articles.
 The second data set contains data on IPOs in the United States from 2000 until 2020.
-The purpose of this repository is to conduct an empirical study of sentiment analysis on
-US financial news articles related to IPOs in the year 2018. We then look at the
-relationship between the polarity score of each of the IPOs under investigation and
-their first day returns respectively. In this analysis, first day returns is measured as
-the percentage change from opening price to closing price on the first day of trading.
-This repo contains python scripts that handle the data management, analsis, and
-production of a paper with the findings from this analysis.
-
 If you are using this template, please cite this item from the references:
 \citet{GaudeckerEconProjectTemplates}.
+
+\section{Figures and Tables}
+\label{sec:Figures and Tables}
 
 \begin{figure}[H]
 
@@ -109,8 +111,7 @@ If you are using this template, please cite this item from the references:
 
 \end{figure}
 
-
-\begin{table}[!h]
+\begin{table}[H]
     \input{../python/tables/summary_table.tex}
     \caption{\label{tab:python-summary}\emph{Python:} Estimation results of the
         linear regression.}
@@ -121,7 +122,7 @@ If you are using this template, please cite this item from the references:
 
 % section introduction (end)
 
-
+% \clearpage
 
 \setstretch{1}
 \printbibliography

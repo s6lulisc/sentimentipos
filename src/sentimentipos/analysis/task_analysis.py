@@ -1,5 +1,3 @@
-########## our code
-
 import pandas as pd
 import pysentiment2 as ps
 import pytask
@@ -12,12 +10,14 @@ from sentimentipos.data_management import ipo_tickers
 @pytask.mark.depends_on(
     {
         "scripts": ["model.py"],
-        "data_info": BLD / "python" / "data",
+        "data_info": BLD / "python" / "data" / "tokenized_texts",
+        "df_info_csv": BLD / "python" / "data",
     },
 )
 @pytask.mark.produces(
     {"models": BLD / "python" / "models", "table": BLD / "python" / "tables"},
 )
+# @pytask.mark.try_last
 def task_get_sentiment_scores(depends_on, produces):
     """"""
     lm = ps.LM()
@@ -25,12 +25,12 @@ def task_get_sentiment_scores(depends_on, produces):
     sentiment_scores = get_sentiment_scores(
         ipo_list,
         lm,
-        depends_on["data_info"] / "tokenized_texts",
+        depends_on["data_info"],
     )
     sentiment_scores.to_csv(produces["models"] / "sentiment_scores.csv")
-    #######################
+    ######################
     # Specify the dependent variable and independent variable
-    df_info = pd.read_csv(depends_on["data_info"] / "df_info.csv")
+    df_info = pd.read_csv(depends_on["df_info_csv"] / "df_info.csv")
     # Reset index and select columns for X and y
     df_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
