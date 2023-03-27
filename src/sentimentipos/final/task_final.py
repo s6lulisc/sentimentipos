@@ -13,7 +13,10 @@ from sentimentipos.final import plot_regression
 @pytask.mark.depends_on(
     {
         "scripts": ["plot.py"],
-        "data_info": BLD / "python" / "data",
+        "tables": BLD / "python" / "tables",
+        "models": BLD / "python" / "models",
+        "data": BLD / "python" / "data",
+        "tokenized_texts": BLD / "python" / "data" / "tokenized_texts",
     },
 )
 @pytask.mark.produces(
@@ -26,11 +29,11 @@ def task_regression_plot(depends_on, produces):
     sentiment_scores = get_sentiment_scores(
         ipo_list,
         lm,
-        depends_on["data_info"] / "tokenized_texts",
+        depends_on["tokenized_texts"],
     )
     ###################
     # Specify the dependent variable and independent variable
-    df_info = pd.read_csv(depends_on["data_info"] / "df_info.csv")
+    df_info = pd.read_csv(depends_on["data"] / "df_info.csv")
     # Reset index and select columns for X and y
     df_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
