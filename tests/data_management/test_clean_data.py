@@ -63,9 +63,9 @@ def test_get_ipo_df(ipo_df_path):
         "lead_jlead_mangr",
         "offr_price",
         "open_price",
-        "1st_d_close",
-        "1st_d_%_chg",
-        "%_chg_open",
+        "1st_day_close",
+        "offr_prc_pct_rtrn",
+        "pct_chg_open",
         "$_chg_close",
         "star_ratn",
         "open_prc_pct_rtrn",
@@ -77,6 +77,8 @@ test_data = [
     ("DBX", "Dropbox", "2018-03-23"),
     ("SPOT", "Spotify", "2018-04-03"),
     ("EQH", "AXA", "2018-05-10"),
+    ("SMAR", "Smartsheet", "2018-04-27"),
+    ("WHD", "Cactus", "2018-02-08"),
 ]
 
 
@@ -106,6 +108,8 @@ def test_get_ipo_date(ipo_df_path, ticker, _, expected_ipo_date):
         ("DBX", -0.017931034482758606),
         ("SPOT", -0.10180831826401456),
         ("EQH", 0.02987341772151898),
+        ("SMAR", 0.05978260869565226),
+        ("WHD", -0.04028436018957352),
     ],
 )
 def test_get_returns(ipo_df_path, ticker, expected_return):
