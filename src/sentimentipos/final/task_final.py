@@ -22,7 +22,6 @@ from sentimentipos.final import plot_regression
 @pytask.mark.produces(
     {"figures": BLD / "python" / "figures"},
 )
-# @pytask.mark.try_last
 def task_regression_plot(depends_on, produces):
     lm = ps.LM()
     ipo_list = ipo_tickers()
@@ -31,17 +30,12 @@ def task_regression_plot(depends_on, produces):
         lm,
         depends_on["tokenized_texts"],
     )
-    ###################
-    # Specify the dependent variable and independent variable
     df_info = pd.read_csv(depends_on["data"] / "df_info.csv")
-    # Reset index and select columns for X and y
     df_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
     y = df_info["returns"]
     X = sentiment_scores["Polarity"]
-    # Fit a linear regression model
     run_linear_regression(df_info, sentiment_scores)
     model = sm.OLS(y, sm.add_constant(X)).fit()
     plot_regression(X, y, model, df_info)
-    # Save the plot
     plt.savefig(produces["figures"] / "regression_plot.png")

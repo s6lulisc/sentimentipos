@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 from sentimentipos.config import SRC
-from sentimentipos.data_management.clean_data import (
+from sentimentipos.data_management.data_processing import (
     contains_word,
     generate_dataframes,
     get_company_name,

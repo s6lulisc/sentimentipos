@@ -72,36 +72,37 @@ This repository was built using the
 The `src` folder contains all the python scripts related to the execution of the
 project, such as the data management, analysis, plotting, and the tasks.
 
-- `data` contains the two data sets used in this project
-- `data_management` contains python scripts that run data processing/cleaning
+- `data` contains the two data sets used in this project.
+- `data_management` contains python scripts that run data processing/cleaning.
 - `analysis` contains the python script model.py that runs the sentiment analysis and
-  regression
+  regression.
 - `final` contains python scripts related to plotting and creatinng the summary
-  statistics table
+  statistics table.
 
-The `bld` folder contains all the outputs of the project
+The `bld` folder contains all the outputs of the project.
 
 - `data` contains the folder of the unzipped json files, matching json files related to
   the IPOs in the analysis, and the tokenized texts which contain the content from the
   json files relevant to each IPO.
-- `figures` contains the plot from the regression
+- `figures` contains the plot from the regression.
 - `models` contains the sentiment scroes of each IPO based on the textual analysis
-  conducted on related financial news articles to each IPO
-- `tables` contains the output of the regression and stores it as a table
+  conducted on related financial news articles to each IPO.
+- `tables` contains the output of the regression and stores it as a table.
 
 ## Distribution of project responsibility
 
 The breakdown of responibilites were split into two catorgories.
 
-1. Joint effert
+1. Joint effert:
 
-- All code in `clean_data`, `task_data_management`, `model`, `task_analysis`, `plot`
+- All code in `data_processing`, `task_data_management`, `model`, `task_analysis`,
+  `plot`
 
-2. Individual
+2. Individual:
 
 **Author: Luke Liscio**
 
-- the tests for functions in `clean_data` up until `transpose_all_dataframes`
+- the tests for functions in `data_processing` up until `transpose_all_dataframes`
 - the tests in `test_model`
 - `task_final`
 - `paper/sentimentipos.tex` and `paper/task_paper`
@@ -109,7 +110,7 @@ The breakdown of responibilites were split into two catorgories.
 
 **Author: Leonardo Rota Sperti**
 
-- Tests in `clean_data` from `transpose_all_dataframes`
+- Tests in `data_processing` from `transpose_all_dataframes`
 - All docstrings
 
 ## Credits
