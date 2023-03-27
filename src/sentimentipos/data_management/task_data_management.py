@@ -74,7 +74,6 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
         produces["output_folder_path"],
     )
     transpose_all_dataframes(df_dict)
-    # Save the df_dict to a pickle file
     with open(produces["df_dict_path"], "wb") as f:
         pickle.dump(df_dict, f)
 
@@ -91,7 +90,6 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
     },
 )
 def task_filter_transpose_tokenize_dataframes(depends_on, produces):
-    # Load the df_dict from the pickle file
     with open(depends_on["df_dict_path"], "rb") as f:
         df_dict = pickle.load(f)
     ipo_list = ipo_tickers()

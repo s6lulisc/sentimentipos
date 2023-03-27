@@ -1,5 +1,3 @@
-# this is our part of the code
-
 import json
 import os
 import string
@@ -217,9 +215,6 @@ def generate_dataframes(folder_path, desired_words, output_folder_path):
     return df_dict
 
 
-###############################################
-
-
 def transpose_all_dataframes(df_dict):
     """Calls each element of the dictionary, transposes the associated pandas dataframe
     and stores the transposed the dataframe in the original dictionary.
@@ -295,13 +290,9 @@ def filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict):
     """
     dfs_filtered = {}
     for company, ticker in companies_and_tickers:
-        # filter data frame by IPO date
         filtered_df = filter_df_by_ipo_date(df_dict, company, ticker)
-        # set the name of the filtered data frame
         df_name = f"df_{ticker}"
-        # assign the filtered data frame to the variable with the given name
         globals()[df_name] = filtered_df
-        # store the filtered data frame in the dictionary
         dfs_filtered[df_name] = filtered_df
     return dfs_filtered
 
@@ -321,23 +312,18 @@ def split_text(df, ticker):
 
     """
     text_col_name = "text"
-    text_col = df[text_col_name]  # get the 'text' column from the DataFrame
-    all_text = []  # create an empty list to store the text values
-
+    text_col = df[text_col_name]
+    all_text = []
     for _index, row in text_col.iteritems():
-        all_text.append(row)  # add the text value from the current row to the list
-
-    punctuation = string.punctuation.replace("-", "")  # keep hyphen
+        all_text.append(row)
+    punctuation = string.punctuation.replace("-", "")
     only_text = [
         text.translate(str.maketrans("", "", punctuation)) for text in all_text
     ]
-
     ticker_text_str = ",".join(only_text)
     globals()[f"{ticker}_text"] = ticker_text_str
     words = ticker_text_str.split()
     globals()[f"{ticker}_words"] = words
-
     words_df = pd.DataFrame(words, columns=["words"])
-    # Save the DataFrame to a CSV file and return it
     words_df.to_csv(f"bld/python/data/tokenized_texts/{ticker}.csv", index=False)
     return words_df

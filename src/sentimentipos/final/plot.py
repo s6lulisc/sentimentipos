@@ -13,26 +13,18 @@ def plot_regression(X, y, model, data):
     model (statsmodels.regression.linear_model.RegressionResultsWrapper): The linear regression model to plot.
 
     """
-    # Create a larger figure
     plt.figure(figsize=(12, 8))
-
-    # Plot the data points
     plt.scatter(X, y, label="Data points", alpha=0.7, marker="o", s=50, edgecolors="k")
-
-    # Add the regression line
     plt.plot(
         X,
         model.predict(sm.add_constant(X)),
         color="green",
         label="Regression line",
     )
-
-    # Add axis labels and title
     plt.xlabel("Sentiment Scores", fontsize=16)
     plt.ylabel("Returns", fontsize=16)
     plt.title("Linear Regression Model", fontsize=20)
 
-    # Add company labels to the data points with an offset to prevent overlapping
     for i, company_name in enumerate(data["company_name"]):
         plt.annotate(
             company_name,
@@ -42,5 +34,4 @@ def plot_regression(X, y, model, data):
             fontsize=12,
         )
 
-    # Add a legend
     plt.legend(fontsize=12)
