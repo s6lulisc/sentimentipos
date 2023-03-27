@@ -16,7 +16,7 @@ def plot_regression(X, y, model, data):
 
     """
     # Plot the data points
-    plt.scatter(X, y, label=data["company_name"])
+    plt.scatter(X, y)
 
     # Add the regression line
     plt.plot(X, model.predict(sm.add_constant(X)), color="red")
@@ -25,3 +25,7 @@ def plot_regression(X, y, model, data):
     plt.xlabel("Sentiment Scores")
     plt.ylabel("Returns")
     plt.title("Linear Regression Model")
+
+    # Add company labels to the data points
+    for i, company_name in enumerate(data["company_name"]):
+        plt.annotate(company_name, (X.iloc[i], y.iloc[i]))
