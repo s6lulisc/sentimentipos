@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import pandas as pd
 import pytask
@@ -41,22 +42,22 @@ def task_unzipper(depends_on, produces):
             pass
 
 
-# Task #2. This task does the remainng data managemennt and stores matching json files of the companies of interest as well as tokenized csv files of the text column from the articles.
+# Task #2. This task generates and saves IPO data and dataframes.
 @pytask.mark.depends_on(
     {
         "scripts": SRC / "data_management" / "clean_data.py",
         "json_zip": SRC / "data" / "archive.zip",
         "ipo_df": SRC / "data" / "ipo_df.xlsx",
-        "unzipped_json_files": SRC / "data",
+        "unzipped_json_files": BLD / "python" / "data" / "unzipped",
     },
 )
 @pytask.mark.produces(
     {
         "output_folder_path": BLD / "python" / "data",
+        "df_dict_path": BLD / "python" / "data" / "df_dict.pkl",
     },
 )
-@pytask.mark.try_last
-def task_df_dict(depends_on, produces):
+def task_generate_ipo_data_and_dataframes(depends_on, produces):
     get_ipo_df(depends_on["ipo_df"])
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
@@ -71,21 +72,45 @@ def task_df_dict(depends_on, produces):
     desired_words = list(df_info["company_name"])
     df_dict = {}
     df_dict = generate_dataframes(
-        produces["output_folder_path"] / "unzipped",
+        depends_on["unzipped_json_files"],
         desired_words,
         produces["output_folder_path"],
     )
     transpose_all_dataframes(df_dict)
+    # Save the df_dict to a pickle file
+    with open(produces["df_dict_path"], "wb") as f:
+        pickle.dump(df_dict, f)
+
+
+# Task #3. This task filters, transposes, and tokenizes dataframes.
+@pytask.mark.depends_on(
+    {
+        "scripts": SRC / "data_management" / "clean_data.py",
+        "json_zip": SRC / "data" / "archive.zip",
+        "ipo_df": SRC / "data" / "ipo_df.xlsx",
+        "unzipped_json_files": SRC / "data",
+        "df_dict_path": BLD / "python" / "data" / "df_dict.pkl",
+    },
+)
+@pytask.mark.produces(
+    {
+        "tokenized": BLD / "python" / "data" / "tokenized_texts",
+    },
+)
+def task_filter_transpose_tokenize_dataframes(depends_on, produces):
+    # Load the df_dict from the pickle file
+    with open(depends_on["df_dict_path"], "rb") as f:
+        df_dict = pickle.load(f)
+    ipo_list = ipo_tickers()
+    ipo_info = get_ipo_info(ipo_list)
     companies_and_tickers = [
         (ipo_info.get(ticker).get("company_name"), ticker) for ticker in ipo_info
     ]
     dfs_filtered = {}
-    # for df, ticker in df_and_tickers:
     dfs_filtered = filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict)
     dfs_filtered = [(dfs_filtered[f"df_{ticker}"], ticker) for ticker in ipo_list]
-    try:
-        os.mkdir(produces["output_folder_path"] / "tokenized_texts")
-    except FileExistsError:
-        pass
+    tokenized_texts_path = produces["tokenized"]
+    os.makedirs(tokenized_texts_path, exist_ok=True)
+
     for df, ticker in dfs_filtered:
         split_text(df, ticker)

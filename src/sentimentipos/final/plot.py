@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
-# Functions plotting results
+# Function plots results
 
 
 def plot_regression(X, y, model):
