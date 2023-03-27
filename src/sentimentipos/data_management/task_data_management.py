@@ -20,7 +20,6 @@ from sentimentipos.data_management import (
 # Task #1. This task is unzipping the json files and storing them in the SRC / "data" / "unzipped" folder
 @pytask.mark.depends_on(
     {
-        "scripts": SRC / "data_management" / "clean_data.py",
         "json_zip": SRC / "data" / "archive.zip",
     },
 )
@@ -45,8 +44,6 @@ def task_unzipper(depends_on, produces):
 # Task #2. This task generates and saves IPO data and dataframes.
 @pytask.mark.depends_on(
     {
-        "scripts": SRC / "data_management" / "clean_data.py",
-        "json_zip": SRC / "data" / "archive.zip",
         "ipo_df": SRC / "data" / "ipo_df.xlsx",
         "unzipped_json_files": BLD / "python" / "data" / "unzipped",
     },
@@ -85,10 +82,6 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
 # Task #3. This task filters, transposes, and tokenizes dataframes.
 @pytask.mark.depends_on(
     {
-        "scripts": SRC / "data_management" / "clean_data.py",
-        "json_zip": SRC / "data" / "archive.zip",
-        "ipo_df": SRC / "data" / "ipo_df.xlsx",
-        "unzipped_json_files": SRC / "data",
         "df_dict_path": BLD / "python" / "data" / "df_dict.pkl",
     },
 )
