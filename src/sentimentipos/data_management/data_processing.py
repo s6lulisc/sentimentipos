@@ -2,12 +2,11 @@ import json
 import os
 import string
 import zipfile
-import pandas as pd
-import numpy as np
-from pathlib import Path
 
 import pandas as pd
+
 from sentimentipos.data_management import get_ipo_df
+
 
 def unzipper(zip_path, out_path):
     """Unzips the file used as one of the arguments and moves it to a specific
@@ -22,10 +21,6 @@ def unzipper(zip_path, out_path):
         zip_ref.extractall(out_path)
 
 
-
-
-
-
 def ipo_tickers():
     """Defines the tickers of the companies that need to be analyzed. This function is
     used to choose the companies for which sentiment analysis will be performed.
@@ -37,7 +32,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT"] #, "EQH", "SMAR", "WHD", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT", "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
 
@@ -55,7 +50,7 @@ def get_company_name(ticker):
     """
     ipo_df = get_ipo_df("bld/python/data/ipo_df.xlsx")
     company_name = ipo_df.loc[ipo_df["ticker"] == ticker, "company"].values[0]
-    return company_name, # print(company_name)
+    return (company_name,)  # print(company_name)
 
 
 def get_ipo_date(ticker):
@@ -72,7 +67,7 @@ def get_ipo_date(ticker):
     """
     ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
     ipo_date = ipo_df.loc[ipo_df["ticker"] == ticker, "trade_date"].values[0]
-    return ipo_date, # print(ipo_date)
+    return (ipo_date,)  # print(ipo_date)
 
 
 def get_returns(ticker):
@@ -90,7 +85,7 @@ def get_returns(ticker):
     """
     ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
     returns = ipo_df.loc[ipo_df["ticker"] == ticker, "open_prc_pct_rtrn"].values[0]
-    return returns, # print(returns)
+    return (returns,)  # print(returns)
 
 
 def get_ipo_info(ipo_list):
@@ -167,19 +162,24 @@ def get_matching_files(folder_path, word):
 
 def generate_dataframes(folder_path, ipo_list, output_folder_path):
     """First, it reates an empty folder to store the dictionaries that will be creates
-    in the function. Then, it uses the function get_matching files to find the articles
+    in the function.
+
+    Then, it uses the function get_matching files to find the articles
     with the desired word in the title. After creating an empty dictionary, it
     associates to each element a pandas dataframe created with a for loop containing all
     the articles with the desired word in the title. The Dataframe is then stored in the
     empty folder created at the beginning of the function. Therefore, the function will
     create a dictionary assigning to each company a dataframe with the information
     contained in the JSON files that the function get_matching_files retrieves.
+
     Args:
         folder_path (str): The path to the folder to search through.
         desired_words (list): A list of words to search for in the 'title' field of the JSON files.
         output_folder_path (str): The path to the folder where the generated DataFrames will be saved.
+
     Returns:
         df_dict (dict): the dictionary associating to each dataframe name (df_<company_name>) the respective dataframe.
+
     """
     # Create the output folder if it does not exist
     matching_json_folder_path = os.path.join(output_folder_path, "matching_json_files")
@@ -188,19 +188,19 @@ def generate_dataframes(folder_path, ipo_list, output_folder_path):
     df_dict = {}
     ipo_info = get_ipo_info(ipo_list)
     for ticker in ipo_list:
-        company_name = ipo_info[ticker]['company_name']
+        company_name = ipo_info[ticker]["company_name"]
         word = company_name
         matching_files = get_matching_files(folder_path, word)
         output_dict = {}
         for file_path in matching_files:
-            with open(file_path, 'r', encoding='latin-1') as f:
+            with open(file_path, encoding="latin-1") as f:
                 data = json.load(f)
                 output_dict[file_path] = data
-        output_file_name = f'matching_files_{word}.json'
+        output_file_name = f"matching_files_{word}.json"
         output_file_path = os.path.join(matching_json_folder_path, output_file_name)
-        with open(output_file_path, 'w') as f:
+        with open(output_file_path, "w") as f:
             json.dump(output_dict, f)
-        df_name = f'df_{ticker}'
+        df_name = f"df_{ticker}"
         df = pd.read_json(output_file_path)
         df_dict[df_name] = df
     return df_dict
@@ -280,7 +280,7 @@ def filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict):
 
     """
     dfs_filtered = {}
-    for company, ticker in companies_and_tickers:
+    for _company, ticker in companies_and_tickers:
         filtered_df = filter_df_by_ipo_date(df_dict, ticker)
         df_name = f"df_{ticker}"
         globals()[df_name] = filtered_df
