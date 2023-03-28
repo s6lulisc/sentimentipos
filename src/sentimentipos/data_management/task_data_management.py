@@ -16,7 +16,6 @@ from sentimentipos.data_management import (
     unzipper,
 )
 
-
 # Task #1. This task is unzipping the json files and storing them in the SRC / "data" / "unzipped" folder
 @pytask.mark.depends_on(
     {
@@ -41,11 +40,36 @@ def task_unzipper(depends_on, produces):
             pass
 
 
+
+
 # Task #2. This task generates and saves IPO data and dataframes.
 @pytask.mark.depends_on(
     {
-        "ipo_df": SRC / "data" / "ipo_df.xlsx",
         "unzipped_json_files": BLD / "python" / "data" / "unzipped",
+        "orginal_data": SRC / "data" / "original_ipo_data.xlsx",
+    },
+)
+@pytask.mark.produces(
+    {
+        "ipo_df": BLD / "python" / "data"/ "ipo_df.xlsx",
+    },
+)
+def task_clean_data_excel(depends_on, produces):
+    ipo_df = get_ipo_df(depends_on["orginal_data"])
+    ipo_df.to_excel(produces["ipo_df"], index=False)
+
+
+
+
+
+
+
+
+# Task #3. This task generates and saves IPO data and dataframes.
+@pytask.mark.depends_on(
+    {
+        "unzipped_json_files": BLD / "python" / "data" / "unzipped",
+        "excel_path": BLD/ "python" / "data"/ "ipo_df.xlsx" #
     },
 )
 @pytask.mark.produces(
@@ -55,7 +79,9 @@ def task_unzipper(depends_on, produces):
     },
 )
 def task_generate_ipo_data_and_dataframes(depends_on, produces):
-    get_ipo_df(depends_on["ipo_df"])
+    #
+    ipo_df = pd.read_excel(depends_on["excel_path"])
+    #
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
     df_info = pd.DataFrame.from_dict(ipo_info, orient="index")
@@ -66,11 +92,11 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
         utc=True,
     ).dt.date
     df_info.to_csv(produces["output_folder_path"] / "df_info.csv", index=False)
-    desired_words = list(df_info["company_name"])
-    df_dict = {}
+    # desired_words = list(df_info["company_name"])
+    ##### df_dict = {}
     df_dict = generate_dataframes(
         depends_on["unzipped_json_files"],
-        desired_words,
+        ipo_list,
         produces["output_folder_path"],
     )
     transpose_all_dataframes(df_dict)
@@ -78,7 +104,13 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
         pickle.dump(df_dict, f)
 
 
-# Task #3. This task filters, transposes, and tokenizes dataframes.
+
+
+
+
+
+
+# Task #4. This task filters, transposes, and tokenizes dataframes.
 @pytask.mark.depends_on(
     {
         "df_dict_path": BLD / "python" / "data" / "df_dict.pkl",
