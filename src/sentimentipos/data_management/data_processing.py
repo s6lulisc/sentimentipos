@@ -32,7 +32,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT"]  # , "EQH", "SMAR", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT", "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
 
@@ -50,7 +50,7 @@ def get_company_name(ticker):
     """
     ipo_df = get_ipo_df("bld/python/data/ipo_df.xlsx")
     company_name = ipo_df.loc[ipo_df["ticker"] == ticker, "company"].values[0]
-    return (company_name,)  # print(company_name)
+    return company_name
 
 
 def get_ipo_date(ticker):
@@ -67,7 +67,7 @@ def get_ipo_date(ticker):
     """
     ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
     ipo_date = ipo_df.loc[ipo_df["ticker"] == ticker, "trade_date"].values[0]
-    return (ipo_date,)  # print(ipo_date)
+    return ipo_date
 
 
 def get_returns(ticker):
@@ -85,7 +85,7 @@ def get_returns(ticker):
     """
     ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
     returns = ipo_df.loc[ipo_df["ticker"] == ticker, "open_prc_pct_rtrn"].values[0]
-    return (returns,)  # print(returns)
+    return returns
 
 
 def get_ipo_info(ipo_list):
@@ -228,14 +228,9 @@ def filter_df_by_ipo_date(df_dict, ticker):
         errors="coerce",
         utc=True,
     ).dt.date
-    global desired_words
-    desired_words = list(df_info["company_name"])
     df_company = df_dict[f"df_{ticker}"]
     df_company["published"] = pd.to_datetime(
-        df_company.get(
-            "published",
-            "2018-06-01",
-        ),  # Replace 'default_value' with an appropriate default value
+        df_company.get("published"),
         errors="coerce",
         utc=True,
     )
@@ -265,7 +260,6 @@ def filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict):
     for _company, ticker in companies_and_tickers:
         filtered_df = filter_df_by_ipo_date(df_dict, ticker)
         df_name = f"df_{ticker}"
-        globals()[df_name] = filtered_df
         dfs_filtered[df_name] = filtered_df
     return dfs_filtered
 
@@ -294,9 +288,7 @@ def split_text(df, ticker):
         text.translate(str.maketrans("", "", punctuation)) for text in all_text
     ]
     ticker_text_str = ",".join(only_text)
-    globals()[f"{ticker}_text"] = ticker_text_str
     words = ticker_text_str.split()
-    globals()[f"{ticker}_words"] = words
     words_df = pd.DataFrame(words, columns=["words"])
     words_df.to_csv(f"bld/python/data/tokenized_texts/{ticker}.csv", index=False)
     return words_df
