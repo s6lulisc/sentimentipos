@@ -32,7 +32,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT", "EQH", "SMAR", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT"]  # , "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
 
@@ -160,7 +160,7 @@ def get_matching_files(folder_path, word):
     return matching_files
 
 
-def generate_dataframes(folder_path, ipo_list, output_folder_path):
+def generate_dataframes(folder_path, ipo_list):
     """First, it reates an empty folder to store the dictionaries that will be creates
     in the function.
 
@@ -181,44 +181,23 @@ def generate_dataframes(folder_path, ipo_list, output_folder_path):
         df_dict (dict): the dictionary associating to each dataframe name (df_<company_name>) the respective dataframe.
 
     """
-    # Create the output folder if it does not exist
-    matching_json_folder_path = os.path.join(output_folder_path, "matching_json_files")
-    if not os.path.exists(matching_json_folder_path):
-        os.makedirs(matching_json_folder_path)
     df_dict = {}
     ipo_info = get_ipo_info(ipo_list)
+
     for ticker in ipo_list:
         company_name = ipo_info[ticker]["company_name"]
         word = company_name
         matching_files = get_matching_files(folder_path, word)
+
         output_dict = {}
         for file_path in matching_files:
             with open(file_path, encoding="latin-1") as f:
                 data = json.load(f)
                 output_dict[file_path] = data
-        output_file_name = f"matching_files_{word}.json"
-        output_file_path = os.path.join(matching_json_folder_path, output_file_name)
-        with open(output_file_path, "w") as f:
-            json.dump(output_dict, f)
+
         df_name = f"df_{ticker}"
-        df = pd.read_json(output_file_path)
+        df = pd.DataFrame.from_dict(output_dict, orient="index")
         df_dict[df_name] = df
-    return df_dict
-
-
-def transpose_all_dataframes(df_dict):
-    """Calls each element of the dictionary, transposes the associated pandas dataframe
-    and stores the transposed the dataframe in the original dictionary.
-
-    Args:
-        df_dict (dict): A dictionary of Pandas DataFrames to be transposed.
-
-    Returns:
-        df_dict (dict): The same dictionary containing the transposed Pandas DataFrames.
-
-    """
-    for name, df in df_dict.items():
-        df_dict[name] = df.T
 
     return df_dict
 
@@ -253,7 +232,10 @@ def filter_df_by_ipo_date(df_dict, ticker):
     desired_words = list(df_info["company_name"])
     df_company = df_dict[f"df_{ticker}"]
     df_company["published"] = pd.to_datetime(
-        df_company["published"],
+        df_company.get(
+            "published",
+            "2018-06-01",
+        ),  # Replace 'default_value' with an appropriate default value
         errors="coerce",
         utc=True,
     )
