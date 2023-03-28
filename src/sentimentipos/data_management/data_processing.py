@@ -32,7 +32,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT", "EQH", "SMAR", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT"]  # , "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
 
@@ -104,9 +104,9 @@ def get_ipo_info(ipo_list):
     """
     ipo_info = {}
     for ticker in ipo_list:
-        company_name = get_company_name(ticker)[0]
-        ipo_date = get_ipo_date(ticker)[0]
-        returns = get_returns(ticker)[0]
+        company_name = get_company_name(ticker)
+        ipo_date = get_ipo_date(ticker)
+        returns = get_returns(ticker)
         ipo_info[ticker] = {
             "company_name": company_name,
             "ipo_date": ipo_date,

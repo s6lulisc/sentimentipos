@@ -70,7 +70,6 @@ def task_clean_data_excel(depends_on, produces):
     },
 )
 def task_generate_ipo_data_and_dataframes(depends_on, produces):
-    pd.read_excel(depends_on["excel_path"])
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
     df_info = pd.DataFrame.from_dict(ipo_info, orient="index")
