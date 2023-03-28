@@ -7,7 +7,7 @@ from sentimentipos.data_management.data_processing import (
     get_ipo_info,
     ipo_tickers,
     split_text,
-    transpose_all_dataframes,
+    # transpose_all_dataframes,
     unzipper,
 )
 
@@ -16,10 +16,9 @@ __all__ = [
     generate_dataframes,
     get_ipo_info,
     ipo_tickers,
-    transpose_all_dataframes,
+    # transpose_all_dataframes,
     filter_and_store_df_by_ipo_date,
     split_text,
     filter_df_by_ipo_date,
     get_ipo_df,
-    
 ]
