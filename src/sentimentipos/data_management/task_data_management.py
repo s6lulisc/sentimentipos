@@ -11,7 +11,6 @@ from sentimentipos.data_management import (
     get_ipo_info,
     ipo_tickers,
     split_text,
-    # transpose_all_dataframes,
     unzipper,
 )
 
@@ -71,9 +70,7 @@ def task_clean_data_excel(depends_on, produces):
     },
 )
 def task_generate_ipo_data_and_dataframes(depends_on, produces):
-    #
     pd.read_excel(depends_on["excel_path"])
-    #
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
     df_info = pd.DataFrame.from_dict(ipo_info, orient="index")
@@ -88,7 +85,6 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
         depends_on["unzipped_json_files"],
         ipo_list,
     )
-    ######
     companies_and_tickers = [
         (ipo_info.get(ticker).get("company_name"), ticker) for ticker in ipo_info
     ]
