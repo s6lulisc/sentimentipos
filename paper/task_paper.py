@@ -16,7 +16,6 @@ document = "sentimentipos"
     ),
 )
 @pytask.mark.task(id=document)
-@pytask.mark.try_last
 def task_compile_document():
     """Compile the document specified in the latex decorator."""
 
@@ -28,6 +27,7 @@ kwargs = {
 
 
 @pytask.mark.task(id=document, kwargs=kwargs)
+@pytask.mark.try_last
 def task_copy_to_root(depends_on, produces):
     """Copy a document to the root directory for easier retrieval."""
     shutil.copy(depends_on, produces)

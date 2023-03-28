@@ -2,9 +2,12 @@ import json
 import os
 import string
 import zipfile
+import pandas as pd
+import numpy as np
+from pathlib import Path
 
 import pandas as pd
-
+from sentimentipos.data_management import get_ipo_df
 
 def unzipper(zip_path, out_path):
     """Unzips the file used as one of the arguments and moves it to a specific
@@ -19,19 +22,8 @@ def unzipper(zip_path, out_path):
         zip_ref.extractall(out_path)
 
 
-def get_ipo_df(path):
-    """Reads the excel file in the specified path. In this case it is a dataframe
-    containing information about IPOs that happened in 2018.
 
-    Args:
-        path (str): The path to the excel file that needs to be read.
 
-    Returns:
-        ipo_df (pd.Dataframe): A pandas dataframe containing information regarding IPOs.
-
-    """
-    ipo_df = pd.read_excel(path)
-    return ipo_df
 
 
 def ipo_tickers():
@@ -45,7 +37,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["DBX", "SPOT", "EQH", "SMAR", "WHD"]
+    ipo_tickers = ["CBLK", "SPOT"] #, "EQH", "SMAR", "WHD", "DBX"]
     return ipo_tickers
 
 
@@ -61,9 +53,9 @@ def get_company_name(ticker):
         company_name (str): The name of the company associated with the ticker used as input.
 
     """
-    ipo_df = get_ipo_df("src/sentimentipos/data/ipo_df.xlsx")
-    company_name = ipo_df.loc[ipo_df["symbol"] == ticker, "issuer"].values[0]
-    return company_name, print(company_name)
+    ipo_df = get_ipo_df("bld/python/data/ipo_df.xlsx")
+    company_name = ipo_df.loc[ipo_df["ticker"] == ticker, "company"].values[0]
+    return company_name, # print(company_name)
 
 
 def get_ipo_date(ticker):
@@ -78,9 +70,9 @@ def get_ipo_date(ticker):
         ipo_date (pd.DateTime): The IPO date of the company associated with the ticker used as input.
 
     """
-    ipo_df = pd.read_excel("src/sentimentipos/data/ipo_df.xlsx")
-    ipo_date = ipo_df.loc[ipo_df["symbol"] == ticker, "trade_date"].values[0]
-    return ipo_date, print(ipo_date)
+    ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
+    ipo_date = ipo_df.loc[ipo_df["ticker"] == ticker, "trade_date"].values[0]
+    return ipo_date, # print(ipo_date)
 
 
 def get_returns(ticker):
@@ -96,9 +88,9 @@ def get_returns(ticker):
             ticker used as input.
 
     """
-    ipo_df = pd.read_excel("src/sentimentipos/data/ipo_df.xlsx")
-    returns = ipo_df.loc[ipo_df["symbol"] == ticker, "open_prc_pct_rtrn"].values[0]
-    return returns, print(returns)
+    ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
+    returns = ipo_df.loc[ipo_df["ticker"] == ticker, "open_prc_pct_rtrn"].values[0]
+    return returns, # print(returns)
 
 
 def get_ipo_info(ipo_list):
@@ -173,7 +165,7 @@ def get_matching_files(folder_path, word):
     return matching_files
 
 
-def generate_dataframes(folder_path, desired_words, output_folder_path):
+def generate_dataframes(folder_path, ipo_list, output_folder_path):
     """First, it reates an empty folder to store the dictionaries that will be creates
     in the function. Then, it uses the function get_matching files to find the articles
     with the desired word in the title. After creating an empty dictionary, it
@@ -182,34 +174,33 @@ def generate_dataframes(folder_path, desired_words, output_folder_path):
     empty folder created at the beginning of the function. Therefore, the function will
     create a dictionary assigning to each company a dataframe with the information
     contained in the JSON files that the function get_matching_files retrieves.
-
     Args:
         folder_path (str): The path to the folder to search through.
         desired_words (list): A list of words to search for in the 'title' field of the JSON files.
         output_folder_path (str): The path to the folder where the generated DataFrames will be saved.
-
     Returns:
         df_dict (dict): the dictionary associating to each dataframe name (df_<company_name>) the respective dataframe.
-
     """
     # Create the output folder if it does not exist
     matching_json_folder_path = os.path.join(output_folder_path, "matching_json_files")
     if not os.path.exists(matching_json_folder_path):
         os.makedirs(matching_json_folder_path)
-
     df_dict = {}
-    for word in desired_words:
+    ipo_info = get_ipo_info(ipo_list)
+    for ticker in ipo_list:
+        company_name = ipo_info[ticker]['company_name']
+        word = company_name
         matching_files = get_matching_files(folder_path, word)
         output_dict = {}
         for file_path in matching_files:
-            with open(file_path, encoding="latin-1") as f:
+            with open(file_path, 'r', encoding='latin-1') as f:
                 data = json.load(f)
                 output_dict[file_path] = data
-        output_file_name = f"matching_files_{word}.json"
+        output_file_name = f'matching_files_{word}.json'
         output_file_path = os.path.join(matching_json_folder_path, output_file_name)
-        with open(output_file_path, "w") as f:
+        with open(output_file_path, 'w') as f:
             json.dump(output_dict, f)
-        df_name = f'df_{word.replace(" ", "")}'
+        df_name = f'df_{ticker}'
         df = pd.read_json(output_file_path)
         df_dict[df_name] = df
     return df_dict
@@ -232,7 +223,7 @@ def transpose_all_dataframes(df_dict):
     return df_dict
 
 
-def filter_df_by_ipo_date(df_dict, company, ticker):
+def filter_df_by_ipo_date(df_dict, ticker):
     """After retrieving the list of IPOs and the dataframe containing their information,
     it uses the date of the IPO to filter the dataframe containing the articles so that
     the new dataframe only contains the articles that were written before the IPO date.
@@ -260,7 +251,7 @@ def filter_df_by_ipo_date(df_dict, company, ticker):
     ).dt.date
     global desired_words
     desired_words = list(df_info["company_name"])
-    df_company = df_dict[f"df_{company}"]
+    df_company = df_dict[f"df_{ticker}"]
     df_company["published"] = pd.to_datetime(
         df_company["published"],
         errors="coerce",
@@ -290,7 +281,7 @@ def filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict):
     """
     dfs_filtered = {}
     for company, ticker in companies_and_tickers:
-        filtered_df = filter_df_by_ipo_date(df_dict, company, ticker)
+        filtered_df = filter_df_by_ipo_date(df_dict, ticker)
         df_name = f"df_{ticker}"
         globals()[df_name] = filtered_df
         dfs_filtered[df_name] = filtered_df
