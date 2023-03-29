@@ -21,7 +21,7 @@ from sentimentipos.data_management import ipo_tickers
     },
 )
 def task_get_sentiment_scores(depends_on, produces):
-    """"""
+    """Use models/tables for regression plot, save as .png."""
     lm = ps.LM()
     ipo_list = ipo_tickers()
     sentiment_scores = get_sentiment_scores(
