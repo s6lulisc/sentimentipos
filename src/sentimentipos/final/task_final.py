@@ -30,12 +30,12 @@ def task_regression_plot(depends_on, produces):
         lm,
         depends_on["tokenized_texts"],
     )
-    df_info = pd.read_csv(depends_on["data"] / "df_info.csv")
-    df_info.reset_index(drop=True, inplace=True)
+    ipo_info = pd.read_csv(depends_on["data"] / "ipo_info.csv")
+    ipo_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
-    y = df_info["returns"]
+    y = ipo_info["returns"]
     X = sentiment_scores["Polarity"]
-    run_linear_regression(df_info, sentiment_scores)
+    run_linear_regression(ipo_info, sentiment_scores)
     model = sm.OLS(y, sm.add_constant(X)).fit()
-    plot_regression(X, y, model, df_info)
+    plot_regression(X, y, model, ipo_info)
     plt.savefig(produces["figures"] / "regression_plot.png")
