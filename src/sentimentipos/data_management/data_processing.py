@@ -1,24 +1,10 @@
 import json
 import os
 import string
-import zipfile
 
 import pandas as pd
 
-from sentimentipos.data_management import get_ipo_df
-
-
-def unzipper(zip_path, out_path):
-    """Unzips the file used as one of the arguments and moves it to a specific
-    directory.
-
-    Args:
-        zip_path (str): The path to the zipped file that needs to be unzipped.
-        out_path (str): The path to the directory where the unzipped file is stored.
-
-    """
-    with zipfile.ZipFile(zip_path) as zip_ref:
-        zip_ref.extractall(out_path)
+from sentimentipos.data_management import get_ipo_data_clean
 
 
 def ipo_tickers():
@@ -32,61 +18,12 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT"]  # , "EQH", "SMAR", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT"] #  "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
-
-def get_company_name(ticker):
-    """Stores the name of the company whose ticker we use as input in a variable called
-    company_name. This function uses the function get_ipo_df to read the excel file
-    containing the necessary information.
-
-    Args:
-        ticker (str): The ticker of the company whose name is to be retrieved.
-
-    Returns:
-        company_name (str): The name of the company associated with the ticker used as input.
-
-    """
-    ipo_df = get_ipo_df("bld/python/data/ipo_df.xlsx")
-    company_name = ipo_df.loc[ipo_df["ticker"] == ticker, "company"].values[0]
-    return company_name
-
-
-def get_ipo_date(ticker):
-    """Stores the IPO date of the company whose ticker we use as input in a variable
-    called ipo_date. This function uses the function get_ipo_df to read the excel file
-    containing the necessary information.
-
-    Args:
-        ticker (str): The ticker of the company whose IPO date is to be retrieved.
-
-    Returns:
-        ipo_date (pd.DateTime): The IPO date of the company associated with the ticker used as input.
-
-    """
-    ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
-    ipo_date = ipo_df.loc[ipo_df["ticker"] == ticker, "trade_date"].values[0]
-    return ipo_date
-
-
-def get_returns(ticker):
-    """Stores the first day returns of the company whose ticker we use as input in a
-    variable called returns. This function uses the function get_ipo_df to read the
-    excel file containing the necessary information.
-
-    Args:
-        ticker (str): The ticker of the company whose IPO date is to be retrieved.
-
-    Returns:
-        returns (float): The first day returns of the company associated with the
-            ticker used as input.
-
-    """
-    ipo_df = pd.read_excel("bld/python/data/ipo_df.xlsx")
-    returns = ipo_df.loc[ipo_df["ticker"] == ticker, "open_prc_pct_rtrn"].values[0]
-    return returns
-
+def open_excel(path):
+    ipo_data_clean = pd.read_excel(path)
+    return ipo_data_clean
 
 def get_ipo_info(ipo_list):
     """Creates a dictionary assigning the corresponding value to the name of each
@@ -102,11 +39,12 @@ def get_ipo_info(ipo_list):
             and the first day returns of each company in the ipo_list.
 
     """
+    ipo_data_clean = pd.read_excel("bld/python/data/ipo_data_clean.xlsx")
     ipo_info = {}
     for ticker in ipo_list:
-        company_name = get_company_name(ticker)
-        ipo_date = get_ipo_date(ticker)
-        returns = get_returns(ticker)
+        company_name = ipo_data_clean.loc[ipo_data_clean["ticker"] == ticker, "company"].values[0]
+        ipo_date = ipo_data_clean.loc[ipo_data_clean["ticker"] == ticker, "trade_date"].values[0]
+        returns = ipo_data_clean.loc[ipo_data_clean["ticker"] == ticker, "open_prc_pct_rtrn"].values[0]
         ipo_info[ticker] = {
             "company_name": company_name,
             "ipo_date": ipo_date,
@@ -202,7 +140,7 @@ def generate_dataframes(folder_path, ipo_list):
     return df_dict
 
 
-def filter_df_by_ipo_date(df_dict, ticker):
+def filter_df_by_ipo_date(df_dict, company, ticker):
     """After retrieving the list of IPOs and the dataframe containing their information,
     it uses the date of the IPO to filter the dataframe containing the articles so that
     the new dataframe only contains the articles that were written before the IPO date.
@@ -221,26 +159,26 @@ def filter_df_by_ipo_date(df_dict, ticker):
     """
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
-    df_info = pd.DataFrame.from_dict(ipo_info, orient="index")
-    df_info.index.name = "ticker"
-    df_info["ipo_date"] = pd.to_datetime(
-        df_info["ipo_date"],
+    ipo_info = pd.DataFrame.from_dict(ipo_info, orient="index")
+    ipo_info.index.name = "ticker"
+    ipo_info["ipo_date"] = pd.to_datetime(
+        ipo_info["ipo_date"],
         errors="coerce",
         utc=True,
     ).dt.date
-    df_company = df_dict[f"df_{ticker}"]
+    df_company = df_dict[f"df_{company}"]
     df_company["published"] = pd.to_datetime(
         df_company.get("published"),
         errors="coerce",
         utc=True,
     )
     df_company["published"] = df_company["published"].dt.date
-    ipo_date = df_info.loc[ticker, "ipo_date"]
+    ipo_date = ipo_info.loc[ticker, "ipo_date"]
     df_filtered = df_company[df_company["published"] < ipo_date]
     return df_filtered
 
 
-def filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict):
+def filter_and_store_df_by_ipo_date(ipo_info, df_dict):
     """After creating an empty dictionary, it fills it with a for loop associating to
     each element the corresponding dataframe filtered by IPO date.
 
@@ -257,8 +195,9 @@ def filter_and_store_df_by_ipo_date(companies_and_tickers, df_dict):
 
     """
     dfs_filtered = {}
-    for _company, ticker in companies_and_tickers:
-        filtered_df = filter_df_by_ipo_date(df_dict, ticker)
+    for ticker, row in ipo_info.iterrows():
+        company = row["company_name"]
+        filtered_df = filter_df_by_ipo_date(df_dict, company, ticker)
         df_name = f"df_{ticker}"
         dfs_filtered[df_name] = filtered_df
     return dfs_filtered

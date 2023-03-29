@@ -11,7 +11,7 @@ from sentimentipos.data_management import ipo_tickers
     {
         "scripts": ["model.py"],
         "data_info": BLD / "python" / "data" / "tokenized_texts",
-        "df_info_csv": BLD / "python" / "data",
+        "ipo_info_csv": BLD / "python" / "data",
     },
 )
 @pytask.mark.produces(
@@ -27,11 +27,11 @@ def task_get_sentiment_scores(depends_on, produces):
         depends_on["data_info"],
     )
     sentiment_scores.to_csv(produces["models"] / "sentiment_scores.csv")
-    df_info = pd.read_csv(depends_on["df_info_csv"] / "df_info.csv")
-    df_info.reset_index(drop=True, inplace=True)
+    ipo_info = pd.read_csv(depends_on["ipo_info_csv"] / "ipo_info.csv")
+    ipo_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
-    df_info["returns"]
+    ipo_info["returns"]
     sentiment_scores["Polarity"]
-    summary_table = run_linear_regression(df_info, sentiment_scores)
+    summary_table = run_linear_regression(ipo_info, sentiment_scores)
     with open(produces["table"] / "summary_table.tex", "w") as f:
         f.write(summary_table.as_latex())

@@ -10,13 +10,11 @@ from sentimentipos.config import SRC
 from sentimentipos.data_management.data_processing import (
     contains_word,
     generate_dataframes,
-    get_company_name,
-    get_ipo_date,
-    get_ipo_df,
     get_matching_files,
-    get_returns,
     split_text,
-    transpose_all_dataframes,
+)
+from sentimentipos.data_management.clean_data import (
+    get_ipo_data_clean,
     unzipper,
 )
 
@@ -51,70 +49,20 @@ def ipo_df_path():
     return path
 
 
-def test_get_ipo_df(ipo_df_path):
-    ipo_df = get_ipo_df(ipo_df_path)
+def test_get_ipo_data_clean(file_path):
+    ipo_clean_data = get_ipo_data_clean(file_path)
 
-    assert isinstance(ipo_df, pd.DataFrame)
-    assert not ipo_df.empty
-    assert set(ipo_df.columns) == {
+    assert isinstance(ipo_clean_data, pd.DataFrame)
+    assert not ipo_clean_data.empty
+    assert set(ipo_clean_data.columns) == {
         "trade_date",
-        "issuer",
-        "symbol",
-        "lead_jlead_mangr",
+        "company",
+        "ticker",
         "offr_price",
         "open_price",
         "1st_day_close",
-        "offr_prc_pct_rtrn",
-        "pct_chg_open",
-        "$_chg_close",
-        "star_ratn",
         "open_prc_pct_rtrn",
     }
-
-
-# Test data
-test_data = [
-    ("DBX", "Dropbox", "2018-03-23"),
-    ("SPOT", "Spotify", "2018-04-03"),
-    ("EQH", "AXA", "2018-05-10"),
-    ("SMAR", "Smartsheet", "2018-04-27"),
-    ("WHD", "Cactus", "2018-02-08"),
-]
-
-
-@pytest.mark.parametrize(
-    ("ticker", "expected_company_name", "expected_ipo_date"),
-    test_data,
-)
-def test_get_company_name(
-    ipo_df_path,
-    ticker,
-    expected_company_name,
-    expected_ipo_date,
-):
-    company_name, _ = get_company_name(ticker)
-    assert company_name == expected_company_name
-
-
-@pytest.mark.parametrize(("ticker", "_", "expected_ipo_date"), test_data)
-def test_get_ipo_date(ipo_df_path, ticker, _, expected_ipo_date):
-    ipo_date, _ = get_ipo_date(ticker)
-    assert str(ipo_date)[:10] == expected_ipo_date
-
-
-@pytest.mark.parametrize(
-    ("ticker", "expected_return"),
-    [
-        ("DBX", -0.017931034482758606),
-        ("SPOT", -0.10180831826401456),
-        ("EQH", 0.02987341772151898),
-        ("SMAR", 0.05978260869565226),
-        ("WHD", -0.04028436018957352),
-    ],
-)
-def test_get_returns(ipo_df_path, ticker, expected_return):
-    returns, _ = get_returns(ticker)
-    assert returns == expected_return
 
 
 def test_contains_word(tmpdir):

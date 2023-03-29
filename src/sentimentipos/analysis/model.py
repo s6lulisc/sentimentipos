@@ -31,20 +31,20 @@ def get_sentiment_scores(ipo_list, lm, path):
     return df_scores
 
 
-def run_linear_regression(df_info, sentiment_scores):
+def run_linear_regression(ipo_info, sentiment_scores):
     """Run a linear regression model using IPO returns and sentiment polarity scores.
 
     Args:
-        df_info (pd.DataFrame): DataFrame containing IPO returns.
+        ipo_info (pd.DataFrame): DataFrame containing IPO returns.
         sentiment_scores (pd.DataFrame): DataFrame containing sentiment polarity scores.
 
     Returns:
         summary_table (str): Summary table of the linear regression model.
 
     """
-    df_info.reset_index(drop=True, inplace=True)
+    ipo_info.reset_index(drop=True, inplace=True)
     sentiment_scores.reset_index(drop=True, inplace=True)
-    y = df_info["returns"]
+    y = ipo_info["returns"]
     X = sentiment_scores["Polarity"]
     model = sm.OLS(y, sm.add_constant(X)).fit()
     summary_table = model.summary()
