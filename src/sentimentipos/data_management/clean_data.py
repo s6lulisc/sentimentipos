@@ -1,10 +1,8 @@
+import zipfile
+
 import numpy as np
 import pandas as pd
-import zipfile
-import pathlib as Path
-import shutil
 
-import os
 
 def unzipper(zip_path, out_path):
     """Unzips the file used as one of the arguments and moves it to a specific
@@ -20,18 +18,14 @@ def unzipper(zip_path, out_path):
 
 
 def get_ipo_data_clean(file_path):
-    """
-    Reads IPO data from an Excel file, filters and processes it to create a DataFrame with relevant IPO information.
+    """Reads IPO data from an Excel file, filters and processes it to create a DataFrame
+    with relevant IPO information.
 
-    Parameters
-    ----------
-    file_path : str
-        The path to the Excel file containing the raw IPO data.
+    Args:
+        file_path (str): The path to the Excel file containing the raw IPO data.
 
-    Returns
-    -------
-    get_ipo_data_clean : pd.DataFrame
-        A DataFrame containing the processed IPO data with the following columns:
+    Returns:
+        get_ipo_data_clean (pd.DataFrame): A DataFrame containing the processed IPO data with the following columns:
             - trade_date: The date when the IPO was traded.
             - company: The name of the company that went public.
             - ticker: The ticker symbol of the company.
@@ -74,7 +68,6 @@ def get_ipo_data_clean(file_path):
         "del",
     ]
 
-    # Check if the columns exist in the DataFrame before dropping them
     columns_to_drop = [col for col in columns_to_drop if col in ipo.columns]
 
     ipo = ipo.drop(columns=columns_to_drop, axis=1)
@@ -99,7 +92,10 @@ def get_ipo_data_clean(file_path):
     new_index = ipo_data_clean.index.max() + 1
     ipo_data_clean.loc[new_index] = new_row
 
-    ipo_data_clean["trade_date"] = pd.to_datetime(ipo_data_clean["trade_date"], errors="coerce")
+    ipo_data_clean["trade_date"] = pd.to_datetime(
+        ipo_data_clean["trade_date"],
+        errors="coerce",
+    )
     ipo_data_clean["trade_date"] = ipo_data_clean["trade_date"].dt.strftime("%Y-%m-%d")
 
     def calculate_and_round(row):
@@ -109,9 +105,19 @@ def get_ipo_data_clean(file_path):
         except (TypeError, ZeroDivisionError):
             return np.nan
 
-    ipo_data_clean["open_prc_pct_rtrn"] = ipo_data_clean.apply(calculate_and_round, axis=1)
+    ipo_data_clean["open_prc_pct_rtrn"] = ipo_data_clean.apply(
+        calculate_and_round,
+        axis=1,
+    )
 
     ipo_data_clean["company"] = ipo_data_clean["company"].str.strip()
     ipo_data_clean["company"].replace("AXA Equitable Holdings", "AXA", inplace=True)
+
+    ipo_data_clean["offr_price"] = ipo_data_clean["offr_price"].astype("int64")
+    ipo_data_clean["open_price"] = ipo_data_clean["open_price"].astype("float64")
+    ipo_data_clean["1st_day_close"] = ipo_data_clean["1st_day_close"].astype("float64")
+    ipo_data_clean["open_prc_pct_rtrn"] = ipo_data_clean["open_prc_pct_rtrn"].astype(
+        "float64",
+    )
 
     return ipo_data_clean
