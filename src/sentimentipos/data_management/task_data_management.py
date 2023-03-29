@@ -11,12 +11,11 @@ from sentimentipos.data_management import (
     get_ipo_info,
     ipo_tickers,
     split_text,
-    open_excel,
     unzipper,
 )
 
 
-# Task #1. This task is unzipping the json files and storing them in the SRC / "data" / "unzipped" folder
+# Task 1
 @pytask.mark.depends_on(
     {
         "json_zip": SRC / "data" / "archive.zip",
@@ -40,7 +39,7 @@ def task_unzipper(depends_on, produces):
             pass
 
 
-# Task #2. This task generates and saves IPO data and dataframes.
+# Task 2
 @pytask.mark.depends_on(
     {
         "unzipped_json_files": BLD / "python" / "data" / "unzipped",
@@ -57,7 +56,7 @@ def task_clean_data_excel(depends_on, produces):
     ipo_data_clean.to_excel(produces["ipo_data_clean"], index=False)
 
 
-# Task #3. This task generates and saves IPO data and dataframes.
+# Task 3
 @pytask.mark.depends_on(
     {
         "unzipped_json_files": BLD / "python" / "data" / "unzipped",
@@ -71,7 +70,6 @@ def task_clean_data_excel(depends_on, produces):
     },
 )
 def task_generate_ipo_data_and_dataframes(depends_on, produces):
-    ipo_data_clean = open_excel(depends_on["excel_path"])
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
     ipo_info = pd.DataFrame.from_dict(ipo_info, orient="index")
@@ -86,14 +84,10 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
         depends_on["unzipped_json_files"],
         ipo_list,
     )
-
-    # Add this line to create the correct df_dict with company names as keys
-    df_dict = {f"df_{ipo_info.loc[ticker, 'company_name']}": df for ticker, df in zip(ipo_list, df_dict.values())}
-    '''
-    companies_and_tickers = [
-        (ipo_info.get(ticker).get("company_name"), ticker) for ticker in ipo_info
-    ]
-    '''
+    df_dict = {
+        f"df_{ipo_info.loc[ticker, 'company_name']}": df
+        for ticker, df in zip(ipo_list, df_dict.values())
+    }
     dfs_filtered = {}
     dfs_filtered = filter_and_store_df_by_ipo_date(ipo_info, df_dict)
     dfs_filtered = [(dfs_filtered[f"df_{ticker}"], ticker) for ticker in ipo_list]
@@ -102,4 +96,3 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
 
     for df, ticker in dfs_filtered:
         split_text(df, ticker)
-
