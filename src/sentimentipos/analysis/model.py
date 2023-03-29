@@ -3,12 +3,12 @@ import statsmodels.api as sm
 
 
 def get_sentiment_scores(ipo_list, lm, path):
-    """Calculate sentiment scores for each ticker in the IPO list.
+    """Calculates sentiment scores for each ticker in the IPO list.
 
     Args:
         ipo_list (list): A list of ticker symbols.
         lm (SentimentIntensityAnalyzer): Instance of a sentiment analyzer.
-        path (Path): Directory path containing the words files for each ticker.
+        path (str): Directory path containing the words files for each ticker.
 
     Returns:
         df_scores (pd.DataFrame): DataFrame containing sentiment scores for each ticker.
@@ -32,7 +32,7 @@ def get_sentiment_scores(ipo_list, lm, path):
 
 
 def run_linear_regression(ipo_info, sentiment_scores):
-    """Run a linear regression model using IPO returns and sentiment polarity scores.
+    """Runs a linear regression model using IPO returns and sentiment polarity scores.
 
     Args:
         ipo_info (pd.DataFrame): DataFrame containing IPO returns.
