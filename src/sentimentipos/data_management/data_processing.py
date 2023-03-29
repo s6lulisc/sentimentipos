@@ -4,8 +4,6 @@ import string
 
 import pandas as pd
 
-from sentimentipos.data_management import get_ipo_data_clean
-
 
 def ipo_tickers():
     """Defines the tickers of the companies that need to be analyzed. This function is
@@ -18,18 +16,28 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT"] #  "EQH", "SMAR", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT", "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
+
 def open_excel(path):
+    """Opens the cleaned excel file.
+
+    Args:
+        path(str): the path to the cleaned excel file.
+
+    Returns:
+        ipo_data_clean(pd.Dataframe): a Pandas dataframe containing
+        the cleaned data for IPOs that occurred in 2018.
+
+    """
     ipo_data_clean = pd.read_excel(path)
     return ipo_data_clean
 
+
 def get_ipo_info(ipo_list):
     """Creates a dictionary assigning the corresponding value to the name of each
-    company, IPO date and first day returns. This function uses the functions
-    get_company_name, get_ipo_date and get_returns to retrieve the necessary
-    information.
+    company, IPO date and first day returns.
 
     Args:
         ipo_list (list): the list of tickers of companies for which the information is to be retrieved.
@@ -42,9 +50,18 @@ def get_ipo_info(ipo_list):
     ipo_data_clean = pd.read_excel("bld/python/data/ipo_data_clean.xlsx")
     ipo_info = {}
     for ticker in ipo_list:
-        company_name = ipo_data_clean.loc[ipo_data_clean["ticker"] == ticker, "company"].values[0]
-        ipo_date = ipo_data_clean.loc[ipo_data_clean["ticker"] == ticker, "trade_date"].values[0]
-        returns = ipo_data_clean.loc[ipo_data_clean["ticker"] == ticker, "open_prc_pct_rtrn"].values[0]
+        company_name = ipo_data_clean.loc[
+            ipo_data_clean["ticker"] == ticker,
+            "company",
+        ].values[0]
+        ipo_date = ipo_data_clean.loc[
+            ipo_data_clean["ticker"] == ticker,
+            "trade_date",
+        ].values[0]
+        returns = ipo_data_clean.loc[
+            ipo_data_clean["ticker"] == ticker,
+            "open_prc_pct_rtrn",
+        ].values[0]
         ipo_info[ticker] = {
             "company_name": company_name,
             "ipo_date": ipo_date,
@@ -99,7 +116,7 @@ def get_matching_files(folder_path, word):
 
 
 def generate_dataframes(folder_path, ipo_list):
-    """First, it reates an empty folder to store the dictionaries that will be creates
+    """First, it creates an empty folder to store the dictionaries that will be creates
     in the function.
 
     Then, it uses the function get_matching files to find the articles
@@ -183,8 +200,8 @@ def filter_and_store_df_by_ipo_date(ipo_info, df_dict):
     each element the corresponding dataframe filtered by IPO date.
 
     Args:
-        companies_and_tickers (list of tuples): A list of tuples, where each tuple
-            contains the name of a company and its corresponding ticker.
+        ipo_info (pd.Dataframe): A dataframe containing the name of the companies, the
+            day of their IPOs and their first day returns.
         df_dict (dict): A dictionary of data frames, where the keys are the names
             of the data frames and the values are the data frames themselves.
 
