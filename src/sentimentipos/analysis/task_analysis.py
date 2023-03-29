@@ -15,7 +15,10 @@ from sentimentipos.data_management import ipo_tickers
     },
 )
 @pytask.mark.produces(
-    {"models": BLD / "python" / "models", "table": BLD / "python" / "tables"},
+    {
+        "models": BLD / "python" / "models",
+        "table": BLD / "python" / "tables",
+    },
 )
 def task_get_sentiment_scores(depends_on, produces):
     """"""
