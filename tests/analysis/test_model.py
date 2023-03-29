@@ -5,14 +5,14 @@ from sentimentipos.analysis.model import get_sentiment_scores, run_linear_regres
 from statsmodels import api as sm
 
 
-class TestModel:
+class TestLanguageModel:
     @pytest.fixture(scope="class")
     def ipo_list(self):
         return ["AAPL", "MSFT"]
 
     @pytest.fixture(scope="class")
-    def fake_lm(self):
-        class FakeLanguageModel:
+    def example_lm(self):
+        class ExampleLanguageModel:
             def get_score(self, words):
                 return {
                     "Positive": 0.2,
@@ -21,10 +21,10 @@ class TestModel:
                     "Subjectivity": 0.3,
                 }
 
-        return FakeLanguageModel()
+        return ExampleLanguageModel()
 
     @pytest.fixture(scope="class")
-    def fake_path(self, tmp_path_factory):
+    def example_path(self, tmp_path_factory):
         path = tmp_path_factory.mktemp("data")
         for ticker in ["AAPL", "MSFT"]:
             words_file = path / f"{ticker}.csv"
@@ -32,7 +32,7 @@ class TestModel:
             pd.DataFrame(words).to_csv(words_file, header=None, index=None)
         return path
 
-    def test_get_sentiment_scores(self, ipo_list, fake_lm, fake_path):
+    def test_get_sentiment_scores(self, ipo_list, example_lm, example_path):
         expected = pd.DataFrame(
             {
                 "Positive": [0.2, 0.2],
@@ -42,7 +42,7 @@ class TestModel:
             },
             index=ipo_list,
         )
-        result = get_sentiment_scores(ipo_list, fake_lm, fake_path)
+        result = get_sentiment_scores(ipo_list, example_lm, example_path)
         pd.testing.assert_frame_equal(result, expected)
 
     def test_run_linear_regression(self):
