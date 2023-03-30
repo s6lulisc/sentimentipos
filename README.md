@@ -37,12 +37,6 @@ that were used during this project:
    $ git clone https://github.com/s6lulisc/sentimentipos.git
    ```
 
-1. In order to run this project you will need to download this
-   [zipped file from Kaggle](https://www.kaggle.com/datasets/jeet2016/us-financial-news-articles),
-   which contains the financial news articles. When saving the file to your local
-   machine, make sure to save it as `archive.zip`, and it needs to be saved in this
-   folder: `src/sentimentipos/data`
-
 1. All of the necessary python dependencies are located in environment.yml . To install
    the virtual environment in a terminal, navigate to the root folder of the repository
    and type
