@@ -14,11 +14,7 @@ from sentimentipos.data_management import (
 
 
 # Task 1
-@pytask.mark.depends_on(
-    {
-        "json_zip": SRC / "data" / "archive.zip",
-    },
-)
+@pytask.mark.depends_on(SRC / "data" / "archive.zip")
 @pytask.mark.produces(
     {
         "unzipped": BLD / "python" / "data" / "unzipped",
@@ -28,7 +24,7 @@ from sentimentipos.data_management import (
 @pytask.mark.try_first
 def task_unzipper(depends_on, produces):
     """Unzips archive.zip, stores files in 'unzipped' folder within data folder in BLD."""
-    unzipper(depends_on["json_zip"], produces["unzipped"])
+    unzipper(depends_on, produces["unzipped"])
     folder_names = ["figures", "models", "tables"]
     for folder_name in folder_names:
         folder_path = produces["bld_python_path"] / folder_name
@@ -36,35 +32,24 @@ def task_unzipper(depends_on, produces):
 
 
 # Task 2
-@pytask.mark.depends_on(
-    {
-        # "unzipped_json_files": BLD / "python" / "data" / "unzipped", ### could try removing this dependency
-        "orginal_data": SRC
-        / "data"
-        / "original_ipo_data.xlsx",
-    },
-)
-@pytask.mark.produces(
-    {
-        "ipo_data_clean": BLD / "python" / "data" / "ipo_data_clean.xlsx",
-    },
-)
+@pytask.mark.depends_on(SRC / "data" / "original_ipo_data.xlsx")
+@pytask.mark.produces(BLD / "python" / "data" / "ipo_data_clean.xlsx")
 def task_clean_data_excel(depends_on, produces):
     """Reads IPO data, cleans, keeps essential rows/cols, saves as ipo_data_clean in BLD."""
-    ipo_data_clean = get_ipo_data_clean(depends_on["orginal_data"])
-    ipo_data_clean.to_excel(produces["ipo_data_clean"], index=False)
+    ipo_data_clean = get_ipo_data_clean(depends_on)
+    ipo_data_clean.to_excel(produces, index=False)
 
 
 # Task 3
 @pytask.mark.depends_on(
     {
-        "unzipped_json_files": BLD / "python" / "data" / "unzipped",
+        "unzipped": BLD / "python" / "data" / "unzipped",
         "excel_path": BLD / "python" / "data" / "ipo_data_clean.xlsx",
     },
 )
 @pytask.mark.produces(
     {
-        "output_folder_path": BLD / "python" / "data",
+        "ipo_info_data": BLD / "python" / "data" / "ipo_info.csv",
         "tokenized": BLD / "python" / "data" / "tokenized_texts",
     },
 )
@@ -78,9 +63,9 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
         errors="coerce",
         utc=True,
     ).dt.date
-    ipo_info.to_csv(produces["output_folder_path"] / "ipo_info.csv", index=False)
+    ipo_info.to_csv(produces["ipo_info_data"], index=False)
     df_dict = generate_dataframes(
-        depends_on["unzipped_json_files"],
+        depends_on["unzipped"],
         ipo_list,
     )
     df_dict = {
