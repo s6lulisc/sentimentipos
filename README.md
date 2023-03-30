@@ -101,8 +101,8 @@ The breakdown of responibilites were split into two catorgories.
 
 1. Collabertive effert:
 
-- All code in `data_processing.py`, `task_data_management.py`, `model.py`,
-  `task_analysis.py`, `plot.py`
+- All code in `data_processing.py`, `clean_data.p`, `task_data_management.py`,
+  `model.py`, `task_analysis.py`, `plot.py`
 
 2. Individual:
 
@@ -110,7 +110,6 @@ The breakdown of responibilites were split into two catorgories.
 
 - the tests in `test_data_management.py` up until `test_filter_df_by_ipo_date`
 - the tests in `test_model.py`
-- `clean_data.py`
 - `task_final.py`
 - `sentimentipos.tex`
 - `task_paper.py`
