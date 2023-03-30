@@ -12,9 +12,9 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-      #- id: check-added-large-files
-        # args:
-          #- --maxkb=25
+      - id: check-added-large-files
+         args:
+          - --maxkb=25
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: check-vcs-permalinks
@@ -52,9 +52,9 @@ repos:
         args:
           - --in-place
           - --wrap-summaries
-          - '88'
+          - '500'
           - --wrap-descriptions
-          - '88'
+          - '500'
           - --blank
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.0.230
