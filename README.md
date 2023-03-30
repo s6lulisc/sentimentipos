@@ -7,13 +7,15 @@
 
 ## About this project
 
-The purpose of this repository is to conduct an empirical study of sentiment analysis on
-US financial news articles related to IPOs in the year 2018. We investigate the
-relationship between the polarity score of each of the IPOs in our analysis and their
-first day returns respectively. In this analysis, first day returns is measured as the
-percentage change from opening price to closing price on the first day of trading. This
-repo contains python scripts that handle the data management, analsis, and production of
-a paper with the findings from this analysis.
+The purpose of this repository is to conduct an empirical study using sentiment
+analysis. The analysis is performed on US financial news articles related to companies
+that had Initial Public Offerings in the year 2018. We investigate the relationship
+between the polarity score of chosen companies and their first day returns. Polarity
+score measures the sentiment of a text by assigning positive or negative values to words
+and averaging those values to get an overall score. In this analysis, first day returns
+is measured as the percentage change from opening price to closing price on the first
+day of trading. This repo contains python scripts that handle the data management,
+analsis, and production of a paper with the findings from this analysis.
 
 The main objective of this project is to demonstrate and apply the skills learned in
 "Effective Programming Practices for Economists".
@@ -30,8 +32,22 @@ that were used during this project:
 - Python 3.11
 - MacTeX-2023
 
-1. Once the above programs are installed, first clone this repository to your local
-   machine by typing this command into your terminal
+Once the above programs are installed, you will need to download git-lfs. Follow
+these[instructions to install git-lfs](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage).
+I.e., for macOS users, type the following command in the terminal:
+
+```console
+$ brew install git-lfs
+```
+
+and then run this command:
+
+```console
+$ git install git-lfs
+```
+
+1. First clone this repository to your local machine by typing this command into your
+   terminal
 
    ```console
    $ git clone https://github.com/s6lulisc/sentimentipos.git
@@ -97,9 +113,9 @@ paper of the project that is compiled.
 
 ## Distribution of project responsibility
 
-The breakdown of responibilites were split into two catorgories.
+The responsibilities were split into two catorgories.
 
-1. Collabertive effert:
+1. Collaborative effort:
 
 - All code in `data_processing.py`, `clean_data.p`, `task_data_management.py`,
   `model.py`, `task_analysis.py`, `plot.py`
