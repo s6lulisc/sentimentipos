@@ -13,7 +13,7 @@ repos:
     rev: v4.4.0
     hooks:
       - id: check-added-large-files
-         args:
+        args:
           - --maxkb=25
       - id: check-case-conflict
       - id: check-merge-conflict
