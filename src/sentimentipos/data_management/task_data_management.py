@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 import pytask
 
@@ -33,11 +31,8 @@ def task_unzipper(depends_on, produces):
     unzipper(depends_on["json_zip"], produces["unzipped"])
     folder_names = ["figures", "models", "tables"]
     for folder_name in folder_names:
-        folder_path = os.path.join(produces["bld_python_path"], folder_name)
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        else:
-            pass
+        folder_path = produces["bld_python_path"] / folder_name
+        folder_path.mkdir(parents=True, exist_ok=True)
 
 
 # Task 2
@@ -76,7 +71,6 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
     ipo_info = pd.DataFrame.from_dict(ipo_info, orient="index")
-    ipo_info.index.name = "ticker"
     ipo_info["ipo_date"] = pd.to_datetime(
         ipo_info["ipo_date"],
         errors="coerce",
@@ -91,11 +85,10 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
         f"df_{ipo_info.loc[ticker, 'company_name']}": df
         for ticker, df in zip(ipo_list, df_dict.values())
     }
-    dfs_filtered = {}
     dfs_filtered = filter_and_store_df_by_ipo_date(ipo_info, df_dict)
     dfs_filtered = [(dfs_filtered[f"df_{ticker}"], ticker) for ticker in ipo_list]
     tokenized_texts_path = produces["tokenized"]
-    os.makedirs(tokenized_texts_path, exist_ok=True)
+    tokenized_texts_path.mkdir(parents=True, exist_ok=True)
 
     for df, ticker in dfs_filtered:
         split_text(df, ticker)

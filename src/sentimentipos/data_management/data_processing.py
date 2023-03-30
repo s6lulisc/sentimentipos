@@ -1,6 +1,6 @@
 import json
-import os
 import string
+from pathlib import Path
 
 import pandas as pd
 
@@ -107,11 +107,10 @@ def get_matching_files(folder_path, word):
 
     """
     matching_files = []
-    for dirpath, _dirnames, filenames in os.walk(folder_path):
-        for filename in filenames:
-            file_path = os.path.join(dirpath, filename)
-            if contains_word(file_path, word):
-                matching_files.append(file_path)
+    folder = Path(folder_path)
+    for file_path in folder.rglob("*"):
+        if file_path.is_file() and contains_word(str(file_path), word):
+            matching_files.append(str(file_path))
     return matching_files
 
 
