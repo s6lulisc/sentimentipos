@@ -31,10 +31,6 @@ def task_get_sentiment_scores(depends_on, produces):
     )
     sentiment_scores.to_csv(produces["models"] / "sentiment_scores.csv")
     ipo_info = pd.read_csv(depends_on["ipo_info_csv"] / "ipo_info.csv")
-    ipo_info.reset_index(drop=True, inplace=True)
-    sentiment_scores.reset_index(drop=True, inplace=True)
-    ipo_info["returns"]
-    sentiment_scores["Polarity"]
     summary_table = run_linear_regression(ipo_info, sentiment_scores)
     with open(produces["table"] / "summary_table.tex", "w") as f:
         f.write(summary_table.as_latex())

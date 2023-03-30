@@ -8,12 +8,12 @@
 ## About this project
 
 The purpose of this repository is to conduct an empirical study of sentiment analysis on
-US financial news articles related to IPOs in the year 2018. We then look at the
-relationship between the polarity score of each of the IPOs under investigation and
-their first day returns respectively. In this analysis, first day returns is measured as
-the percentage change from opening price to closing price on the first day of trading.
-This repo contains python scripts that handle the data management, analsis, and
-production of a paper with the findings from this analysis.
+US financial news articles related to IPOs in the year 2018. We investigate the
+relationship between the polarity score of each of the IPOs in our analysis and their
+first day returns respectively. In this analysis, first day returns is measured as the
+percentage change from opening price to closing price on the first day of trading. This
+repo contains python scripts that handle the data management, analsis, and production of
+a paper with the findings from this analysis.
 
 The main objective of this project is to demonstrate and apply the skills learned in
 "Effective Programming Practices for Economists".
@@ -31,12 +31,17 @@ that were used during this project:
 - MacTeX-2023
 
 1. Once the above programs are installed, first clone this repository to your local
-   machine.
+   machine by typing this command into your terminal
+
+   ```console
+   $ git clone https://github.com/s6lulisc/sentimentipos.git
+   ```
 
 1. In order to run this project you will need to download this
-   [zipped data set file from Kaggle](https://www.kaggle.com/datasets/jeet2016/us-financial-news-articles).
-   When saving the file to your local machine, make sure to save it to the correct path.
-   The zipped file needs to be saved in src/sentimentipos/data.
+   [zipped file from Kaggle](https://www.kaggle.com/datasets/jeet2016/us-financial-news-articles),
+   which contains the financial news articles. When saving the file to your local
+   machine, make sure to save it as `archive.zip`, and it needs to be saved in this
+   folder: `src/sentimentipos/data`
 
 1. All of the necessary python dependencies are located in environment.yml . To install
    the virtual environment in a terminal, navigate to the root folder of the repository
@@ -70,47 +75,56 @@ This repository was built using the
 [Templates for Reproducible Research Projects in Economics](https://econ-project-templates.readthedocs.io/en/latest/index.html).
 
 The `src` folder contains all the python scripts related to the execution of the
-project, such as the data management, analysis, plotting, and the tasks.
+project.
 
-- `data` contains the two data sets used in this project.
-- `data_management` contains python scripts that run data processing/cleaning.
-- `analysis` contains the python script model.py that runs the sentiment analysis and
-  regression.
+- `data` contains the two original data sets used in this project.
+- `data_management` contains 3 python scripts: `clean_data`, `data_processing`, and
+  `task_data_management`. These scripts run the data processing and cleaning.
+- `analysis` contains the python scripts `model.py` and `task_analysis` that run the
+  sentiment analysis and regression.
 - `final` contains python scripts related to plotting and creatinng the summary
   statistics table.
 
 The `bld` folder contains all the outputs of the project.
 
-- `data` contains the folder of the unzipped json files, matching json files related to
-  the IPOs in the analysis, and the tokenized texts which contain the content from the
-  json files relevant to each IPO.
+- `data` contains 2 folders and 2 files: the `unzipped` folder of all the json files of
+  financial news articles, the cleaned excel data called `ipo_data_clean.xlsx`, the
+  folder `tokenized_texts` which contains csv files of all the text content from the
+  json files matching for each IPO respectively, and `ipo_info.csv` which lists company
+  name, date and returns for the IPOs that are chosen from the function `ipo_tickers` in
+  the script `data_processing`.
 - `figures` contains the plot from the regression.
 - `models` contains the sentiment scroes of each IPO based on the textual analysis
-  conducted on related financial news articles to each IPO.
-- `tables` contains the output of the regression and stores it as a table.
+  conducted on related financial news articles for each IPO.
+- `tables` contains the summary statistics of the regression and stores it as a table.
+
+In the root folder of the repository, there is also `sentimentipos.pdf` that is the
+paper of the project that is compiled.
 
 ## Distribution of project responsibility
 
 The breakdown of responibilites were split into two catorgories.
 
-1. Joint effert:
+1. Collabertive effert:
 
-- All code in `data_processing`, `task_data_management`, `model`, `task_analysis`,
-  `plot`
+- All code in `data_processing.py`, `task_data_management.py`, `model.py`,
+  `task_analysis.py`, `plot.py`
 
 2. Individual:
 
 **Author: Luke Liscio**
 
-- the tests for functions in `data_processing` up until `transpose_all_dataframes`
-- the tests in `test_model`
-- `task_final`
-- `paper/sentimentipos.tex` and `paper/task_paper`
-- `ReadMe`
+- the tests in `test_data_management.py` up until `test_filter_df_by_ipo_date`
+- the tests in `test_model.py`
+- `clean_data.py`
+- `task_final.py`
+- `sentimentipos.tex`
+- `task_paper.py`
+- `README.md`
 
 **Author: Leonardo Rota Sperti**
 
-- Tests in `data_processing` from `transpose_all_dataframes`
+- Tests in `test_data_management.py` from `test_filter_df_by_ipo_date`
 - All docstrings
 
 ## Credits
