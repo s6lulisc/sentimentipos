@@ -38,8 +38,10 @@ def task_unzipper(depends_on, produces):
 # Task 2
 @pytask.mark.depends_on(
     {
-        "unzipped_json_files": BLD / "python" / "data" / "unzipped",
-        "orginal_data": SRC / "data" / "original_ipo_data.xlsx",
+        # "unzipped_json_files": BLD / "python" / "data" / "unzipped", ### could try removing this dependency
+        "orginal_data": SRC
+        / "data"
+        / "original_ipo_data.xlsx",
     },
 )
 @pytask.mark.produces(
@@ -57,7 +59,7 @@ def task_clean_data_excel(depends_on, produces):
 @pytask.mark.depends_on(
     {
         "unzipped_json_files": BLD / "python" / "data" / "unzipped",
-        "excel_path": BLD / "python" / "data" / "ipo_data_clean.xlsx",  #
+        "excel_path": BLD / "python" / "data" / "ipo_data_clean.xlsx",
     },
 )
 @pytask.mark.produces(
