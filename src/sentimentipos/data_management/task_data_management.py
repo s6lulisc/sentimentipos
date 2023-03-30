@@ -27,7 +27,7 @@ from sentimentipos.data_management import (
 )
 @pytask.mark.try_first
 def task_unzipper(depends_on, produces):
-    """Unzip archive.zip, store files in 'unzipped' folder within data folder in BLD."""
+    """Takes the zipped file archive.zip, unzips it and stores the unzipped files in a folder called 'unzipped' in the data folder in the BLD."""
     unzipper(depends_on["json_zip"], produces["unzipped"])
     folder_names = ["figures", "models", "tables"]
     for folder_name in folder_names:
@@ -48,7 +48,7 @@ def task_unzipper(depends_on, produces):
     },
 )
 def task_clean_data_excel(depends_on, produces):
-    """Read IPO data, clean, keep essential rows/cols, save as ipo_data_clean in BLD."""
+    """Reads the original IPO data file, cleans it so that it only keeps the necessary rows and columns and saves this new cleaned dataframe as ipo_data_clean in the data folder in the BLD."""
     ipo_data_clean = get_ipo_data_clean(depends_on["orginal_data"])
     ipo_data_clean.to_excel(produces["ipo_data_clean"], index=False)
 
@@ -67,7 +67,7 @@ def task_clean_data_excel(depends_on, produces):
     },
 )
 def task_generate_ipo_data_and_dataframes(depends_on, produces):
-    """Clean Excel, unzip files, make dataframes, tokenize articles pre-IPO."""
+    """Uses the cleaned excel data and the unzipped files to create dataframes containing all the tokenized texts of the articles regarding each company leading up to their IPO date."""
     ipo_list = ipo_tickers()
     ipo_info = get_ipo_info(ipo_list)
     ipo_info = pd.DataFrame.from_dict(ipo_info, orient="index")
