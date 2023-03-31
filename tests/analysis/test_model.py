@@ -48,5 +48,8 @@ class TestLanguageModel:
     def test_run_linear_regression(self):
         df_info = pd.DataFrame({"returns": np.random.rand(8)})
         sentiment_scores = pd.DataFrame({"Polarity": np.random.rand(8)})
-        summary_table = run_linear_regression(df_info, sentiment_scores)
-        assert isinstance(summary_table, sm.iolib.summary.Summary)
+        result = run_linear_regression(df_info, sentiment_scores)
+        assert isinstance(
+            result,
+            sm.regression.linear_model.RegressionResultsWrapper,
+        ), "The result should be an instance of statsmodels.regression.linear_model.RegressionResultsWrapper."

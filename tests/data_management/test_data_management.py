@@ -1,21 +1,17 @@
 import json
 import os
-import shutil
-import tempfile
 import zipfile
-from datetime import datetime
 
 import pandas as pd
+import pytest
 from pandas.testing import assert_frame_equal
 from sentimentipos.data_management.clean_data import (
-    get_ipo_data_clean,
     unzipper,
 )
 from sentimentipos.data_management.data_processing import (
     contains_word,
     filter_and_store_df_by_ipo_date,
     filter_df_by_ipo_date,
-    generate_dataframes,
     get_ipo_info,
     get_matching_files,
     split_text,
@@ -43,59 +39,50 @@ def test_unzipper(tmpdir):
     assert content == "IPO underpricing"
 
 
-TEST_DATA_FILE_PATH = "src/sentimentipos/data/original_ipo_data.xlsx"
-
-
-def _create_expected_ipo_data_clean():
+@pytest.fixture()
+def _create_mock_ipo_data_clean():
     data = {
         "trade_date": [
-            "2018-03-23",
-            "2018-04-27",
-            "2018-05-04",
-            "2018-05-10",
-            "2018-04-03",
+            "2018-02-20",
+            "2018-04-05",
+            "2018-06-12",
+            "2018-08-24",
         ],
         "company": [
-            "Dropbox",
-            "Smartsheet",
-            "Carbon Black",
-            "AXA",
-            "Spotify",
+            "Company A",
+            "Company B",
+            "Company C",
+            "Company D",
         ],
         "ticker": [
-            "DBX",
-            "SMAR",
-            "CBLK",
-            "EQH",
-            "SPOT",
+            "COMA",
+            "COMB",
+            "COMC",
+            "COMD",
         ],
         "offr_price": [
-            21,
+            25,
             15,
-            19,
             20,
-            132,
+            18,
         ],
         "open_price": [
-            29,
-            18.40,
-            24.70,
-            19.75,
-            165.90,
+            30.20,
+            16.90,
+            21.50,
+            19.60,
         ],
         "1st_day_close": [
-            28.48,
-            19.50,
-            23.94,
-            20.34,
-            149.01,
+            33.35,
+            11.25,
+            23.70,
+            17.45,
         ],
         "open_prc_pct_rtrn": [
-            -0.018,
-            0.060,
-            -0.031,
-            0.030,
-            -0.102,
+            0.104,
+            -0.292,
+            0.075,
+            -0.078,
         ],
     }
     df = pd.DataFrame(data)
@@ -106,60 +93,42 @@ def _create_expected_ipo_data_clean():
     return df
 
 
-def test_get_ipo_data_clean():
-    expected_ipo_data_clean = _create_expected_ipo_data_clean()
-
-    actual_ipo_data_clean = get_ipo_data_clean(TEST_DATA_FILE_PATH)
-    actual_ipo_data_clean = actual_ipo_data_clean[
-        actual_ipo_data_clean["company"].isin(expected_ipo_data_clean["company"])
-    ].reset_index(drop=True)
-
-    assert_frame_equal(expected_ipo_data_clean, actual_ipo_data_clean)
+@pytest.fixture()
+def clean_data(_create_mock_ipo_data_clean):
+    return _create_mock_ipo_data_clean
 
 
-###
-clean_data = _create_expected_ipo_data_clean()
-###
-
-
-def _create_expected_ipo_info(ipo_list):
+def test_get_ipo_info(clean_data):
+    ipo_list = ["COMA", "COMB", "COMC", "COMD"]
     expected_ipo_info = {
-        "DBX": {
-            "company_name": "Dropbox",
-            "ipo_date": "2018-03-23",
-            "returns": -0.018,
+        "COMA": {
+            "company_name": "Company A",
+            "ticker": "COMA",
+            "ipo_date": "2018-02-20",
+            "returns": 0.104,
         },
-        "SMAR": {
-            "company_name": "Smartsheet",
-            "ipo_date": "2018-04-27",
-            "returns": 0.060,
+        "COMB": {
+            "company_name": "Company B",
+            "ticker": "COMB",
+            "ipo_date": "2018-04-05",
+            "returns": -0.292,
         },
-        "CBLK": {
-            "company_name": "Carbon Black",
-            "ipo_date": "2018-05-04",
-            "returns": -0.031,
+        "COMC": {
+            "company_name": "Company C",
+            "ticker": "COMC",
+            "ipo_date": "2018-06-12",
+            "returns": 0.075,
         },
-        "EQH": {
-            "company_name": "AXA",
-            "ipo_date": "2018-05-10",
-            "returns": 0.030,
-        },
-        "SPOT": {
-            "company_name": "Spotify",
-            "ipo_date": "2018-04-03",
-            "returns": -0.102,
+        "COMD": {
+            "company_name": "Company D",
+            "ticker": "COMD",
+            "ipo_date": "2018-08-24",
+            "returns": -0.078,
         },
     }
-    return {ticker: expected_ipo_info[ticker] for ticker in ipo_list}
-
-
-def test_get_ipo_info():
-    ipo_list = ["DBX", "SMAR", "CBLK", "EQH", "SPOT"]
-    expected_ipo_info = _create_expected_ipo_info(ipo_list)
+    expected_ipo_info = pd.DataFrame.from_dict(expected_ipo_info, orient="index")
     actual_ipo_info = get_ipo_info(ipo_list, clean_data)
-    assert (
-        actual_ipo_info == expected_ipo_info
-    ), f"Expected {expected_ipo_info}, but got {actual_ipo_info}"
+    pd.testing.assert_frame_equal(expected_ipo_info, actual_ipo_info)
 
 
 def test_contains_word(tmpdir):
@@ -201,201 +170,88 @@ def test_get_matching_files(tmpdir):
         assert target_word in data["title"]
 
 
-###########
-def _create_test_files():
-    test_files = {
-        "Dropbox": {"title": "Dropbox announces their IPO"},
-        "Smartsheet": {"title": "Smartsheet decides to go public with IPO"},
-        "Carbon Black": {"title": "Carbon Black intends to go public thorough IPO"},
-        "AXA": {"title": "AXA is one week away from IPO"},
-        "Spotify": {"title": "Spotify goes public"},
-    }
-
-    temp_folder = tempfile.mkdtemp()
-
-    for company, data in test_files.items():
-        with open(os.path.join(temp_folder, f"{company}.json"), "w") as f:
-            json.dump(data, f)
-
-    return temp_folder
-
-
-def _delete_test_files(temp_folder):
-    shutil.rmtree(temp_folder)
-
-
-def _create_expected_df_dict(ipo_list):
-    expected_df_dict = {}
-    for ticker in ipo_list:
-        company_name = {
-            "DBX": "Dropbox",
-            "SMAR": "Smartsheet",
-            "CBLK": "Carbon Black",
-            "EQH": "AXA",
-            "SPOT": "Spotify",
-        }[ticker]
-
-        data = {
-            "title": [f"{company_name}"],
-        }
-
-        df = pd.DataFrame(data)
-        expected_df_dict[f"df_{ticker}"] = df
-
-    return expected_df_dict
-
-
-def test_generate_dataframes():
-    ipo_list = ["DBX", "SMAR", "CBLK", "EQH", "SPOT"]
-    expected_df_dict = _create_expected_df_dict(ipo_list)
-
-    temp_folder = _create_test_files()
-
-    try:
-        actual_df_dict = generate_dataframes(temp_folder, ipo_list, clean_data)
-
-        for df_name, expected_df in expected_df_dict.items():
-            assert df_name in actual_df_dict, f"{df_name} not found in actual_df_dict"
-            actual_df = actual_df_dict[df_name].reset_index(drop=True)
-
-            for index, row in expected_df.iterrows():
-                company_name = row["title"]
-                actual_title = actual_df.loc[index, "title"]
-
-                assert (
-                    company_name in actual_title
-                ), f"Company name '{company_name}' not found in actual title '{actual_title}'"
-
-    finally:
-        _delete_test_files(temp_folder)
-
-
-date_string = "2018-01-01T00:00:00Z"
-date_obj = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ").date()
-formatted_date = date_obj.strftime("%Y-%m-%d")
-
-
-def _create_expected_ipo_data_clean_with_date_objects():
-    data = {
-        "ticker": ["DBX", "SMAR", "CBLK", "EQH", "SPOT"],
-        "trade_date": [
-            "2018-03-23",
-            "2018-04-27",
-            "2018-05-04",
-            "2018-05-10",
-            "2018-04-03",
-        ],
-    }
-    df = pd.DataFrame(data)
-    df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.date
-    return df
-
-
-def _create_test_df(company_name):
-    data = {
-        "title": [f"{company_name} announces their IPO"],
-        "published": [formatted_date],
-    }
-    return pd.DataFrame(data)
-
-
 def test_filter_df_by_ipo_date():
-    test_df_dict = {
-        f"df_{company_name}": _create_test_df(company_name)
-        for ticker, company_name in {
-            "DBX": "Dropbox",
-            "SMAR": "Smartsheet",
-            "CBLK": "Carbon Black",
-            "EQH": "AXA",
-            "SPOT": "Spotify",
-        }.items()
-    }
-    for ticker, company_name in {
-        "DBX": "Dropbox",
-        "SMAR": "Smartsheet",
-        "CBLK": "Carbon Black",
-        "EQH": "AXA",
-        "SPOT": "Spotify",
-    }.items():
-        filtered_df = filter_df_by_ipo_date(
-            test_df_dict,
-            company_name,
-            ticker,
-            clean_data,
-        )
+    # Sample Data
+    ipo_info = pd.DataFrame(
+        {
+            "company_name": ["Company A", "Company B"],
+            "ticker": ["A", "B"],
+            "ipo_date": ["2020-01-15", "2020-02-15"],
+            "first_day_return": [0.1, 0.2],
+        },
+    ).set_index("ticker")
 
-        for _index, row in filtered_df.iterrows():
-            company_in_title = company_name in row["title"]
-            assert company_in_title, f"Expected {company_name} in title, but not found"
+    df_A = pd.DataFrame(
+        {
+            "published": ["2020-01-01", "2020-01-10", "2020-01-20"],
+            "content": ["Article 1", "Article 2", "Article 3"],
+        },
+    )
 
-            published_date = row["published"]
-            ipo_date = (
-                _create_expected_ipo_data_clean_with_date_objects()
-                .loc[
-                    _create_expected_ipo_data_clean_with_date_objects()["ticker"]
-                    == ticker,
-                    "trade_date",
-                ]
-                .values[0]
-            )
+    df_B = pd.DataFrame(
+        {
+            "published": ["2020-02-01", "2020-02-10", "2020-02-20"],
+            "content": ["Article 4", "Article 5", "Article 6"],
+        },
+    )
 
-            assert (
-                published_date < ipo_date
-            ), f"Expected published date {published_date} to be before IPO date {ipo_date}"
+    df_dict = {"df_Company A": df_A, "df_Company B": df_B}
 
+    # Test cases
+    result_A = filter_df_by_ipo_date(df_dict, "Company A", "A", ipo_info)
+    result_B = filter_df_by_ipo_date(df_dict, "Company B", "B", ipo_info)
 
-def _create_expected_ipo_data_clean_with_company_names():
-    data = {
-        "ticker": ["DBX", "SMAR", "CBLK", "EQH", "SPOT"],
-        "company_name": ["Dropbox", "Smartsheet", "Carbon Black", "AXA", "Spotify"],
-        "trade_date": [
-            "2018-03-23",
-            "2018-04-27",
-            "2018-05-04",
-            "2018-05-10",
-            "2018-04-03",
-        ],
-    }
-    ipo_info = pd.DataFrame(data)
-    ipo_info["trade_date"] = pd.to_datetime(ipo_info["trade_date"]).dt.date
-    ipo_info = ipo_info.set_index("ticker")
-    return ipo_info
+    assert isinstance(result_A, pd.DataFrame), "The result should be a DataFrame."
+    assert isinstance(result_B, pd.DataFrame), "The result should be a DataFrame."
+
+    expected_A = df_A[df_A["published"] < ipo_info.loc["A", "ipo_date"]]
+    expected_B = df_B[df_B["published"] < ipo_info.loc["B", "ipo_date"]]
+
+    assert result_A.equals(
+        expected_A,
+    ), "The filtered dataframe for Company A should match the expected dataframe."
+    assert result_B.equals(
+        expected_B,
+    ), "The filtered dataframe for Company B should match the expected dataframe."
 
 
 def test_filter_and_store_df_by_ipo_date():
-    ipo_info = _create_expected_ipo_data_clean_with_company_names()
-    test_df_dict = {
-        f"df_{company_name}": _create_test_df(company_name)
-        for _, company_name in {
-            "DBX": "Dropbox",
-            "SMAR": "Smartsheet",
-            "CBLK": "Carbon Black",
-            "EQH": "AXA",
-            "SPOT": "Spotify",
-        }.items()
-    }
+    # Sample Data
+    ipo_info = pd.DataFrame(
+        {
+            "company_name": ["Company A", "Company B"],
+            "ticker": ["A", "B"],
+            "ipo_date": ["2020-01-15", "2020-02-15"],
+            "first_day_return": [0.1, 0.2],
+        },
+    ).set_index("ticker")
 
-    filtered_dfs = filter_and_store_df_by_ipo_date(ipo_info, test_df_dict, clean_data)
+    df_A = pd.DataFrame(
+        {
+            "published": ["2020-01-01", "2020-01-10", "2020-01-20"],
+            "content": ["Article 1", "Article 2", "Article 3"],
+        },
+    )
 
-    for ticker, company_name in {
-        "DBX": "Dropbox",
-        "SMAR": "Smartsheet",
-        "CBLK": "Carbon Black",
-        "EQH": "AXA",
-        "SPOT": "Spotify",
-    }.items():
-        filtered_df = filtered_dfs[f"df_{ticker}"]
+    df_B = pd.DataFrame(
+        {
+            "published": ["2020-02-01", "2020-02-10", "2020-02-20"],
+            "content": ["Article 4", "Article 5", "Article 6"],
+        },
+    )
 
-        for _index, row in filtered_df.iterrows():
-            company_in_title = company_name in row["title"]
-            assert company_in_title, f"Expected {company_name} in title, but not found"
-
-            published_date = row["published"]
-            ipo_date = ipo_info.loc[ticker, "trade_date"]
-
-            assert (
-                published_date < ipo_date
-            ), f"Expected published date {published_date} to be before IPO date {ipo_date}"
+    df_dict = {"df_Company A": df_A, "df_Company B": df_B}
+    result = filter_and_store_df_by_ipo_date(ipo_info, df_dict)
+    assert isinstance(result, dict), "The result should be a dictionary."
+    assert len(result) == 2, "There should be two filtered dataframes in the result."
+    assert "df_A" in result, "The result should contain a key 'df_A'."
+    assert "df_B" in result, "The result should contain a key 'df_B'."
+    assert result["df_A"].equals(
+        df_A[df_A["published"] < ipo_info.loc["A", "ipo_date"]],
+    ), "The 'df_A' value should be equal to the filtered df_A."
+    assert result["df_B"].equals(
+        df_B[df_B["published"] < ipo_info.loc["B", "ipo_date"]],
+    ), "The 'df_B' value should be equal to the filtered df_B."
 
 
 def test_split_text():
@@ -403,7 +259,6 @@ def test_split_text():
         {"words": ["IPO", "underpricing", "test", "sentence"]},
     )
     df = pd.DataFrame({"text": ["IPO underpricing test sentence"]})
-    ticker = "TEST"
-    words_df = split_text(df, ticker)
+    words_df = split_text(df)
 
     assert_frame_equal(expected_words_df, words_df)

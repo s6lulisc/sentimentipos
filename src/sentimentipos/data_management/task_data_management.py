@@ -87,6 +87,7 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
     BLD / "python" / "data" / "tokenized_texts",
 )
 def task_split_text_and_save(depends_on, produces):
+    """Split text in dataframes, tokenize, and save to individual CSV files."""
     dfs_filtered = pd.read_pickle(depends_on["dfs_filtered"])
     tokenized_texts_folder_path = Path(produces)
     tokenized_texts_folder_path.mkdir(parents=True, exist_ok=True)

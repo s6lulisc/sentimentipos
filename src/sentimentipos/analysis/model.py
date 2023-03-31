@@ -32,14 +32,16 @@ def get_sentiment_scores(ipo_list, lm, path):
 
 
 def run_linear_regression(ipo_info, sentiment_scores):
-    """Runs a linear regression model using IPO returns and sentiment polarity scores.
+    """Runs a linear regression model using IPO returns as the dependent variable and sentiment
+    polarity scores as the independent variable.
 
     Args:
-        ipo_info (pd.DataFrame): DataFrame containing IPO returns.
+        ipo_info (pd.DataFrame): a pandas dataframe containing the name of the company, the ticker, the IPO date
+            and the first day returns of each company in the ipo_list.
         sentiment_scores (pd.DataFrame): DataFrame containing sentiment polarity scores.
 
     Returns:
-        summary_table (str): Summary table of the linear regression model.
+        model (statsmodels.regression.linear_model): the fitted linear regression model.
 
     """
     ipo_info.reset_index(drop=True, inplace=True)
@@ -47,5 +49,4 @@ def run_linear_regression(ipo_info, sentiment_scores):
     y = ipo_info["returns"]
     X = sentiment_scores["Polarity"]
     model = sm.OLS(y, sm.add_constant(X)).fit()
-    summary_table = model.summary()
-    return summary_table
+    return model

@@ -15,7 +15,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT"]  # , "EQH", "SMAR", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT", "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
 
@@ -40,10 +40,10 @@ def get_ipo_info(ipo_list, ipo_data_clean):
 
     Args:
         ipo_list (list): the list of tickers of companies for which the information is to be retrieved.
-        ipo_data_clean() #####
+        ipo_data_clean() A DataFrame containing the cleaned IPO data.
 
     Returns:
-        ipo_info (pd.DataFrame): a pandas dataframe containing the name of the company, the IPO date
+        ipo_info (pd.DataFrame): a pandas dataframe containing the name of the company, the ticker, the IPO date
             and the first day returns of each company in the ipo_list.
 
     """
@@ -85,7 +85,7 @@ def contains_word(file_path, word):
         word (str): The word that the function will look for in the title of the JSON (the name of the company).
 
     Returns:
-        bool: Returns True if the name of the company is in the title, False otherwise. #####??
+        bool: Returns True if the name of the company is in the title, False otherwise.
 
     """
     try:
@@ -133,7 +133,8 @@ def generate_dataframes(folder_path, ipo_info):
 
     Args:
         folder_path (str): The path to the folder to search through.
-        ipo_info (pd.DataFrame): #####
+        ipo_info (pd.DataFrame): a pandas dataframe containing the name of the company, the ticker, the IPO date
+            and the first day returns of each company in the ipo_list.
 
     Returns:
         df_dict (dict): the dictionary associating to each dataframe name (df_<company_name>) the respective dataframe.
@@ -169,7 +170,8 @@ def filter_df_by_ipo_date(df_dict, company_name, ticker, ipo_info):
         df_dict (dict): A dictionary of Pandas DataFrames containing article data for various companies.
         company (str): The name of the company to filter for.
         ticker (str): The stock ticker symbol of the company.
-        ipo_info (): #####
+        ipo_info (pd.DataFrame): a pandas dataframe containing the name of the company, the ticker, the IPO date
+            and the first day returns of each company in the ipo_list.
 
     Returns:
         df_filtered (pd.DataFrame): A filtered DataFrame containing only the articles
@@ -219,9 +221,7 @@ def filter_and_store_df_by_ipo_date(ipo_info, df_dict):
     return dfs_filtered
 
 
-def split_text(
-    df,
-):  # got rid of argyment: ticker. ticker (str): The ticker symbol of the company corresponding to the DataFrame.
+def split_text(df):
     """Extracts the text from the 'text' column of the specified DataFrame and splits it into
     individual words (tokenization), which are saved to a CSV file in a new folder with the
     specified `ticker` as the filename.
