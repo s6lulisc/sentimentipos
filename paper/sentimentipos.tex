@@ -88,7 +88,11 @@ This repo contains python scripts that handle the data management, analsis, and 
 \section{Introduction} % (fold)
 \label{sec:introduction}
 
-Our project currently runs for five selected companies, as specified in the function ipo tickers in the script data processing.
+Our project currently runs for five selected companies, as specified in the function ipo tickers in the script data processing. The code is dynamic and will work for other company tickers who had IPOs in 2018. Thus, adding more tickers is recommended for a more robust analysis. We have kept it at its current size of five companies for runtime consideration.
+We use Spotify, Dropbox, and AXA because of their company size and likelihood of receiving more media attention. The other two companies, Carbon Black, and Smartsheet were chosen at random.
+
+\section{Data} % (fold)
+\label{sec:Data}
 The first data set for this project is taken from
 \url{https://www.kaggle.com/datasets/jeet2016/us-financial-news-articles}.
 The second data set is from
@@ -97,6 +101,16 @@ The first data set contains over 300,000 US financial news articles from 2018.
 The second data set contains data on Initial Public Offerings in the United States from 2000 until 2020.
 If you are using this template, please cite this item from the references:
 \citet{GaudeckerEconProjectTemplates}.
+
+\section{Analysis} % (fold)
+\label{sec:Analysis}
+Using the python package pysentiment2, we employ the Loughran-McDonald Master Dictionary to analyze sentiment scores
+for financial news articles related to compannies that are going public. The dictionary comprises six sentiment categories:
+positive, negative, uncertainty, litigious, strong modal, and weak modal. By leveraging these categories,
+we can assess the sentiment of financial texts more accurately, gaining insights into market participants' perceptions of IPOs.
+The sentiment scores derived from the Loughran-McDonald Master Dictionary enable us to quantify the overall sentiment conveyed
+in financial news articles to identify the relationship with their pricing.
+    We then run a linear regression, with the independent variable being the sentiment analysis scores and the dependent variable being the first day returns of the ipos.
 
 \section{Figures and Tables}
 \label{sec:Figures and Tables}
