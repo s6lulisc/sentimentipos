@@ -62,23 +62,16 @@ def task_generate_ipo_data_and_dataframes(depends_on, produces):
     ipo_list = ipo_tickers()
     ipo_data_clean = open_excel(depends_on["excel_path"])
     ipo_info = get_ipo_info(ipo_list, ipo_data_clean)
-    ipo_info = pd.DataFrame.from_dict(ipo_info, orient="index")
-    ipo_info["ipo_date"] = pd.to_datetime(
-        ipo_info["ipo_date"],
-        errors="coerce",
-        utc=True,
-    ).dt.date
     ipo_info.to_csv(produces["ipo_info_data"], index=False)
     df_dict = generate_dataframes(
         depends_on["unzipped"],
-        ipo_list,
-        ipo_data_clean,
+        ipo_info,
     )
     df_dict = {
         f"df_{ipo_info.loc[ticker, 'company_name']}": df
         for ticker, df in zip(ipo_list, df_dict.values())
     }
-    dfs_filtered = filter_and_store_df_by_ipo_date(ipo_info, df_dict, ipo_data_clean)
+    dfs_filtered = filter_and_store_df_by_ipo_date(ipo_info, df_dict)
     dfs_filtered = [(dfs_filtered[f"df_{ticker}"], ticker) for ticker in ipo_list]
     with open(produces["dfs_filtered"], "wb") as f:
         pickle.dump(dfs_filtered, f)
@@ -98,5 +91,5 @@ def task_split_text_and_save(depends_on, produces):
     tokenized_texts_folder_path = Path(produces)
     tokenized_texts_folder_path.mkdir(parents=True, exist_ok=True)
     for df, ticker in dfs_filtered:
-        words_df = split_text(df, ticker)
+        words_df = split_text(df)  # got rid of the function argument ticker
         words_df.to_csv(produces / f"{ticker}.csv", index=False)
