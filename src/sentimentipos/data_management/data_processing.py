@@ -15,7 +15,7 @@ def ipo_tickers():
         by who is performing the analysis.
 
     """
-    ipo_tickers = ["CBLK", "SPOT", "EQH", "SMAR", "DBX"]
+    ipo_tickers = ["CBLK", "SPOT"]  # , "EQH", "SMAR", "DBX"]
     return ipo_tickers
 
 
@@ -26,7 +26,7 @@ def open_excel(path):
         path(str): the path to the cleaned excel file.
 
     Returns:
-        ipo_data_clean(pd.Dataframe): a Pandas dataframe containing
+        ipo_data_clean (pd.Dataframe): a Pandas dataframe containing
         the cleaned data for IPOs that occurred in 2018.
 
     """
@@ -40,9 +40,10 @@ def get_ipo_info(ipo_list, ipo_data_clean):
 
     Args:
         ipo_list (list): the list of tickers of companies for which the information is to be retrieved.
+        ipo_data_clean() #####
 
     Returns:
-        ipo_info (dict): a dictionary containing the name of the company, the IPO date
+        ipo_info (pd.DataFrame): a pandas dataframe containing the name of the company, the IPO date
             and the first day returns of each company in the ipo_list.
 
     """
@@ -51,6 +52,10 @@ def get_ipo_info(ipo_list, ipo_data_clean):
         company_name = ipo_data_clean.loc[
             ipo_data_clean["ticker"] == ticker,
             "company",
+        ].values[0]
+        ipo_tickers = ipo_data_clean.loc[
+            ipo_data_clean["ticker"] == ticker,
+            "ticker",
         ].values[0]
         ipo_date = ipo_data_clean.loc[
             ipo_data_clean["ticker"] == ticker,
@@ -62,9 +67,12 @@ def get_ipo_info(ipo_list, ipo_data_clean):
         ].values[0]
         ipo_info[ticker] = {
             "company_name": company_name,
+            "ticker": ipo_tickers,
             "ipo_date": ipo_date,
             "returns": returns,
         }
+
+    ipo_info = pd.DataFrame.from_dict(ipo_info, orient="index")
     return ipo_info
 
 
@@ -77,7 +85,7 @@ def contains_word(file_path, word):
         word (str): The word that the function will look for in the title of the JSON (the name of the company).
 
     Returns:
-        bool: Returns True if the name of the company is in the title, False otherwise.
+        bool: Returns True if the name of the company is in the title, False otherwise. #####??
 
     """
     try:
@@ -111,7 +119,7 @@ def get_matching_files(folder_path, word):
     return matching_files
 
 
-def generate_dataframes(folder_path, ipo_list, ipo_data_clean):
+def generate_dataframes(folder_path, ipo_info):
     """First, it creates an empty folder to store the dictionaries that will be creates in the
     function.
 
@@ -125,17 +133,15 @@ def generate_dataframes(folder_path, ipo_list, ipo_data_clean):
 
     Args:
         folder_path (str): The path to the folder to search through.
-        desired_words (list): A list of words to search for in the 'title' field of the JSON files.
-        output_folder_path (str): The path to the folder where the generated DataFrames will be saved.
+        ipo_info (pd.DataFrame): #####
 
     Returns:
         df_dict (dict): the dictionary associating to each dataframe name (df_<company_name>) the respective dataframe.
 
     """
     df_dict = {}
-    ipo_info = get_ipo_info(ipo_list, ipo_data_clean)
-    for ticker in ipo_list:
-        company_name = ipo_info[ticker]["company_name"]
+    for ticker, row in ipo_info.iterrows():
+        company_name = row["company_name"]
         word = company_name
         matching_files = get_matching_files(folder_path, word)
 
@@ -152,7 +158,7 @@ def generate_dataframes(folder_path, ipo_list, ipo_data_clean):
     return df_dict
 
 
-def filter_df_by_ipo_date(df_dict, company, ticker, ipo_data_clean):
+def filter_df_by_ipo_date(df_dict, company_name, ticker, ipo_info):
     """After retrieving the list of IPOs and the dataframe containing their information, it uses the
     date of the IPO to filter the dataframe containing the articles so that the new dataframe only
     contains the articles that were written before the IPO date. This is done because the analysis
@@ -163,34 +169,32 @@ def filter_df_by_ipo_date(df_dict, company, ticker, ipo_data_clean):
         df_dict (dict): A dictionary of Pandas DataFrames containing article data for various companies.
         company (str): The name of the company to filter for.
         ticker (str): The stock ticker symbol of the company.
+        ipo_info (): #####
 
     Returns:
         df_filtered (pd.DataFrame): A filtered DataFrame containing only the articles
         for the specified company that were published before its IPO date.
 
     """
-    ipo_list = ipo_tickers()
-    ipo_info = get_ipo_info(ipo_list, ipo_data_clean)
-    ipo_info = pd.DataFrame.from_dict(ipo_info, orient="index")
     ipo_info.index.name = "ticker"
     ipo_info["ipo_date"] = pd.to_datetime(
         ipo_info["ipo_date"],
         errors="coerce",
         utc=True,
     ).dt.date
-    df_company = df_dict[f"df_{company}"]
-    df_company["published"] = pd.to_datetime(
-        df_company.get("published"),
+    df_company_name = df_dict[f"df_{company_name}"]
+    df_company_name["published"] = pd.to_datetime(
+        df_company_name.get("published"),
         errors="coerce",
         utc=True,
     )
-    df_company["published"] = df_company["published"].dt.date
+    df_company_name["published"] = df_company_name["published"].dt.date
     ipo_date = ipo_info.loc[ticker, "ipo_date"]
-    df_filtered = df_company[df_company["published"] < ipo_date]
+    df_filtered = df_company_name[df_company_name["published"] < ipo_date]
     return df_filtered
 
 
-def filter_and_store_df_by_ipo_date(ipo_info, df_dict, ipo_data_clean):
+def filter_and_store_df_by_ipo_date(ipo_info, df_dict):
     """After creating an empty dictionary, it fills it with a for loop associating to each element
     the corresponding dataframe filtered by IPO date.
 
@@ -208,21 +212,22 @@ def filter_and_store_df_by_ipo_date(ipo_info, df_dict, ipo_data_clean):
     """
     dfs_filtered = {}
     for ticker, row in ipo_info.iterrows():
-        company = row["company_name"]
-        filtered_df = filter_df_by_ipo_date(df_dict, company, ticker, ipo_data_clean)
+        company_name = row["company_name"]
+        filtered_df = filter_df_by_ipo_date(df_dict, company_name, ticker, ipo_info)
         df_name = f"df_{ticker}"
         dfs_filtered[df_name] = filtered_df
     return dfs_filtered
 
 
-def split_text(df, ticker):
+def split_text(
+    df,
+):  # got rid of argyment: ticker. ticker (str): The ticker symbol of the company corresponding to the DataFrame.
     """Extracts the text from the 'text' column of the specified DataFrame and splits it into
     individual words (tokenization), which are saved to a CSV file in a new folder with the
     specified `ticker` as the filename.
 
     Args:
         df (pd.DataFrame): The DataFrame to extract the text data from.
-        ticker (str): The ticker symbol of the company corresponding to the DataFrame.
 
     Returns:
         words_df (pd.DataFrame): A DataFrame containing the individual words
