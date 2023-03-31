@@ -117,6 +117,11 @@ def test_get_ipo_data_clean():
     assert_frame_equal(expected_ipo_data_clean, actual_ipo_data_clean)
 
 
+###
+clean_data = _create_expected_ipo_data_clean()
+###
+
+
 def _create_expected_ipo_info(ipo_list):
     expected_ipo_info = {
         "DBX": {
@@ -151,8 +156,7 @@ def _create_expected_ipo_info(ipo_list):
 def test_get_ipo_info():
     ipo_list = ["DBX", "SMAR", "CBLK", "EQH", "SPOT"]
     expected_ipo_info = _create_expected_ipo_info(ipo_list)
-    actual_ipo_info = get_ipo_info(ipo_list)
-
+    actual_ipo_info = get_ipo_info(ipo_list, clean_data)
     assert (
         actual_ipo_info == expected_ipo_info
     ), f"Expected {expected_ipo_info}, but got {actual_ipo_info}"
@@ -197,6 +201,7 @@ def test_get_matching_files(tmpdir):
         assert target_word in data["title"]
 
 
+###########
 def _create_test_files():
     test_files = {
         "Dropbox": {"title": "Dropbox announces their IPO"},
@@ -247,7 +252,7 @@ def test_generate_dataframes():
     temp_folder = _create_test_files()
 
     try:
-        actual_df_dict = generate_dataframes(temp_folder, ipo_list)
+        actual_df_dict = generate_dataframes(temp_folder, ipo_list, clean_data)
 
         for df_name, expected_df in expected_df_dict.items():
             assert df_name in actual_df_dict, f"{df_name} not found in actual_df_dict"
@@ -312,7 +317,12 @@ def test_filter_df_by_ipo_date():
         "EQH": "AXA",
         "SPOT": "Spotify",
     }.items():
-        filtered_df = filter_df_by_ipo_date(test_df_dict, company_name, ticker)
+        filtered_df = filter_df_by_ipo_date(
+            test_df_dict,
+            company_name,
+            ticker,
+            clean_data,
+        )
 
         for _index, row in filtered_df.iterrows():
             company_in_title = company_name in row["title"]
@@ -365,7 +375,7 @@ def test_filter_and_store_df_by_ipo_date():
         }.items()
     }
 
-    filtered_dfs = filter_and_store_df_by_ipo_date(ipo_info, test_df_dict)
+    filtered_dfs = filter_and_store_df_by_ipo_date(ipo_info, test_df_dict, clean_data)
 
     for ticker, company_name in {
         "DBX": "Dropbox",
